@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, ReactNode } from 'react';
-import Welcome from '../components/Welcome';
 import { DisplayContextType } from '../types';
+import { HomeScreen } from '@/components/screens/home-screen';
 
 // Create the context with a default value
 const DisplayContext = createContext<DisplayContextType | undefined>(undefined);
@@ -11,9 +11,10 @@ interface DisplayProviderProps {
 }
 
 export const DisplayProvider: React.FC<DisplayProviderProps> = ({ children }) => {
-  const [display, setDisplay] = useState<ReactNode>(<Welcome />);
+  const [display, setDisplay] = useState<ReactNode>(<HomeScreen />);
   const [bgColor, setBgColor] = useState<string>('bg-[#E8E8E8]');
   const [showButtons, setShowButtons] = useState<boolean>(false);
+  const [showAddPropertyButton, setShowAddPropertyButton] = useState<boolean>(true);
 
   return (
     <DisplayContext.Provider
@@ -24,6 +25,8 @@ export const DisplayProvider: React.FC<DisplayProviderProps> = ({ children }) =>
         setBgColor,
         showButtons,
         setShowButtons,
+        showAddPropertyButton,
+        setShowAddPropertyButton
       }}>
       {children}
     </DisplayContext.Provider>
@@ -33,7 +36,7 @@ export const DisplayProvider: React.FC<DisplayProviderProps> = ({ children }) =>
 export const useDisplayContext = () => {
   const context = useContext(DisplayContext);
   if (!context) {
-    throw new Error("useDisplay must be used within a DisplayProvider");
+    throw new Error('useDisplay must be used within a DisplayProvider');
   }
   return context;
 };

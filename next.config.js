@@ -6,6 +6,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 module.exports = withBundleAnalyzer({
   reactStrictMode: false,
+  images: {
+    domains: ['api.mapbox.com'], // replace 'example.com' with your desired domain
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
@@ -19,3 +22,4 @@ module.exports = withBundleAnalyzer({
     return config
   }
 });
+

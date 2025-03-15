@@ -2,7 +2,6 @@ import type { NextPage } from 'next';
 import { useEffect } from 'react';
 
 import { Layout } from '../components/layout';
-import { HomeScreen } from '../components/screens/home-screen';
 import { useDataContext } from '@/contexts/Data';
 import { useDisplayContext } from '@/contexts/Display';
 
@@ -21,7 +20,7 @@ const Home: NextPage = () => {
 
   function parseQueryString(queryString: string) {
     let params = new URLSearchParams(queryString);
-    let result = {};
+    let result:any = {};
 
     for (let [key, value] of params.entries()) {
       try {
@@ -40,7 +39,7 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <HomeScreen />
+      {display}
     </Layout>
   );
 };

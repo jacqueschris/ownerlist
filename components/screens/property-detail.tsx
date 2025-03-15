@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Button } from "../ui/button"
-import { Card, CardContent } from "../ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import { Calendar } from "../ui/calendar"
-import { useTelegram } from "../telegram-provider"
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Calendar } from '../ui/calendar';
+import { useTelegram } from '../telegram-provider';
 import {
   ArrowLeft,
   Heart,
@@ -18,80 +18,81 @@ import {
   CalendarIcon,
   MessageCircle,
   ExternalLink,
-} from "lucide-react"
-import { useRouter } from "next/router"
+} from 'lucide-react';
+import { HomeScreen } from './home-screen';
+import { useDisplayContext } from '@/contexts/Display';
 
 interface PropertyDetailProps {
-  id: string
+  id: string;
 }
 
 export function PropertyDetail({ id }: PropertyDetailProps) {
-  const router = useRouter()
-  const { webApp } = useTelegram()
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [date, setDate] = useState<Date | undefined>(undefined)
+  const { webApp } = useTelegram();
+  const { setDisplay } = useDisplayContext();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   // Mock property data
   const property = {
     id,
-    title: "Modern 2BR Apartment in Downtown",
+    title: 'Modern 2BR Apartment in Downtown',
     price: 250000,
-    location: "Downtown, New York",
+    location: 'Downtown, New York',
     coordinates: {
       lat: 40.7128,
       lng: -74.006,
     },
-    type: "Apartment",
+    type: 'Apartment',
     bedrooms: 2,
     bathrooms: 1,
     size: 85,
     description:
-      "This beautiful modern apartment features an open floor plan with large windows providing plenty of natural light. The kitchen is equipped with stainless steel appliances and granite countertops. The master bedroom has a walk-in closet and an en-suite bathroom. The second bedroom is perfect for a home office or guest room. The building offers amenities such as a fitness center, rooftop terrace, and 24-hour concierge service.",
+      'This beautiful modern apartment features an open floor plan with large windows providing plenty of natural light. The kitchen is equipped with stainless steel appliances and granite countertops. The master bedroom has a walk-in closet and an en-suite bathroom. The second bedroom is perfect for a home office or guest room. The building offers amenities such as a fitness center, rooftop terrace, and 24-hour concierge service.',
     images: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
+      '/placeholder.svg?height=400&width=600',
+      '/placeholder.svg?height=400&width=600',
+      '/placeholder.svg?height=400&width=600',
+      '/placeholder.svg?height=400&width=600',
     ],
-    amenities: ["Balcony", "Elevator", "Air Conditioning", "Parking", "Furnished"],
+    amenities: ['Balcony', 'Elevator', 'Air Conditioning', 'Parking', 'Furnished'],
     owner: {
-      name: "John Doe",
-      phone: "+1 234 567 8901",
-      email: "john.doe@example.com",
+      name: 'John Doe',
+      phone: '+1 234 567 8901',
+      email: 'john.doe@example.com',
     },
-    listingType: "buy",
-  }
+    listingType: 'buy',
+  };
 
   useEffect(() => {
     if (webApp) {
-      webApp.BackButton.show()
-      webApp.BackButton.onClick(() => router.back())
+      webApp.BackButton.show();
+      webApp.BackButton.onClick(() => setDisplay(<HomeScreen />));
     }
 
     return () => {
       if (webApp) {
-        webApp.BackButton.hide()
-        webApp.BackButton.offClick(() => router.back())
+        webApp.BackButton.hide();
+        webApp.BackButton.offClick(() => setDisplay(<HomeScreen />));
       }
-    }
-  }, [webApp, router])
+    };
+  }, [webApp]);
 
   const toggleFavorite = () => {
-    setIsFavorite(!isFavorite)
-  }
+    setIsFavorite(!isFavorite);
+  };
 
   const handleBookViewing = () => {
     // Handle booking logic
-    alert(`Viewing requested for ${date?.toDateString()}`)
-  }
+    alert(`Viewing requested for ${date?.toDateString()}`);
+  };
 
   const openGoogleMaps = () => {
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${property.coordinates.lat},${property.coordinates.lng}`,
-      "_blank",
-    )
-  }
+      '_blank'
+    );
+  };
 
   return (
     <div className="pb-16">
@@ -99,7 +100,7 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
       <div className="relative">
         <div className="relative h-64 w-full">
           <Image
-            src={property.images[activeImageIndex] || "/placeholder.svg"}
+            src={property.images[activeImageIndex] || '/placeholder.svg'}
             alt={property.title}
             fill
             className="object-cover"
@@ -109,8 +110,7 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
               variant="outline"
               size="icon"
               className="rounded-full bg-white/80 backdrop-blur-sm"
-              onClick={() => router.back()}
-            >
+              onClick={() => setDisplay(<HomeScreen />)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </div>
@@ -119,11 +119,13 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
               variant="outline"
               size="icon"
               className="rounded-full bg-white/80 backdrop-blur-sm"
-              onClick={toggleFavorite}
-            >
-              <Heart className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
+              onClick={toggleFavorite}>
+              <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full bg-white/80 backdrop-blur-sm">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-white/80 backdrop-blur-sm">
               <Share2 className="h-5 w-5" />
             </Button>
           </div>
@@ -134,11 +136,12 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
           {property.images.map((image, index) => (
             <button
               key={index}
-              className={`flex-shrink-0 ${activeImageIndex === index ? "ring-2 ring-[#F8F32B]" : ""}`}
-              onClick={() => setActiveImageIndex(index)}
-            >
+              className={`flex-shrink-0 ${
+                activeImageIndex === index ? 'ring-2 ring-[#F8F32B]' : ''
+              }`}
+              onClick={() => setActiveImageIndex(index)}>
               <Image
-                src={image || "/placeholder.svg"}
+                src={image || '/placeholder.svg'}
                 alt={`Thumbnail ${index + 1}`}
                 width={60}
                 height={60}
@@ -160,7 +163,9 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
             </div>
           </div>
           <div className="text-2xl font-bold">
-            {property.listingType === "buy" ? `$${property.price.toLocaleString()}` : `$${property.price}/month`}
+            {property.listingType === 'buy'
+              ? `$${property.price.toLocaleString()}`
+              : `$${property.price}/month`}
           </div>
         </div>
 
@@ -246,18 +251,21 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
 
         <div className="mt-6">
           <h3 className="font-semibold mb-4">Book a Viewing</h3>
-          <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+          />
           <Button
             className="w-full mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
             disabled={!date}
-            onClick={handleBookViewing}
-          >
+            onClick={handleBookViewing}>
             <CalendarIcon className="h-4 w-4 mr-2" />
             Request Viewing
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

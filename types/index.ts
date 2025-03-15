@@ -20,4 +20,20 @@ export interface DisplayContextType {
   setBgColor: React.Dispatch<React.SetStateAction<string>>;
   showButtons: boolean;
   setShowButtons: React.Dispatch<React.SetStateAction<boolean>>;
+  showAddPropertyButton: boolean;
+  setShowAddPropertyButton: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface Property {
+  id: string;
+  title: string;
+  price: number;
+  location: string;
+  type: string;
+  bedrooms: number;
+  bathrooms: number;
+  size: number;
+  image: string;
+  isFavorite: boolean;
+  listingType: 'buy' | 'rent';
 }

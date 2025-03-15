@@ -1,49 +1,84 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { X } from "lucide-react"
-import { Button } from "./ui/button"
-import { Slider } from "./ui/slider"
-import { Checkbox } from "./ui/checkbox"
-import { Label } from "./ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import { Button } from './ui/button';
+import { Slider } from './ui/slider';
+import { Checkbox } from './ui/checkbox';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import ButtonToggle from './button-toggle';
 
-interface PropertyFiltersProps {
-  onClose: () => void
+interface Filters {
+  listingType: 'buy' | 'rent' | 'all';
+  priceRange: [number, number];
+  propertyType: string;
+  bedrooms: string;
+  bathrooms: string;
+  size: [number, number];
+  amenities: string[];
 }
 
-export function PropertyFilters({ onClose }: PropertyFiltersProps) {
-  const [priceRange, setPriceRange] = useState([0, 1000000])
-  const [propertyType, setPropertyType] = useState("")
-  const [bedrooms, setBedrooms] = useState("")
-  const [bathrooms, setBathrooms] = useState("")
-  const [size, setSize] = useState([0, 500])
-  const [amenities, setAmenities] = useState<string[]>([])
+interface PropertyFiltersProps {
+  onClose: () => void;
+  onApply: (filters: Filters) => void;
+  onReset: () => void;
+  initialFilters: Filters;
+}
+
+export function PropertyFilters({
+  onClose,
+  onApply,
+  onReset,
+  initialFilters,
+}: PropertyFiltersProps) {
+  const [listingType, setListingType] = useState<'buy' | 'rent' | 'all'>(
+    initialFilters.listingType
+  );
+  const [priceRange, setPriceRange] = useState<[number, number]>(initialFilters.priceRange);
+  const [propertyType, setPropertyType] = useState(initialFilters.propertyType);
+  const [bedrooms, setBedrooms] = useState(initialFilters.bedrooms);
+  const [bathrooms, setBathrooms] = useState(initialFilters.bathrooms);
+  const [size, setSize] = useState<[number, number]>(initialFilters.size);
+  const [amenities, setAmenities] = useState<string[]>(initialFilters.amenities);
+
+  // Update local state when initialFilters change
+  useEffect(() => {
+    setListingType(initialFilters.listingType);
+    setPriceRange(initialFilters.priceRange);
+    setPropertyType(initialFilters.propertyType);
+    setBedrooms(initialFilters.bedrooms);
+    setBathrooms(initialFilters.bathrooms);
+    setSize(initialFilters.size);
+    setAmenities(initialFilters.amenities);
+  }, [initialFilters]);
 
   const toggleAmenity = (amenity: string) => {
     if (amenities.includes(amenity)) {
-      setAmenities(amenities.filter((a) => a !== amenity))
+      setAmenities(amenities.filter((a) => a !== amenity));
     } else {
-      setAmenities([...amenities, amenity])
+      setAmenities([...amenities, amenity]);
     }
-  }
+  };
 
   const handleApply = () => {
-    // Apply filters logic here
-    onClose()
-  }
+    onApply({
+      listingType,
+      priceRange,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      size,
+      amenities,
+    });
+  };
 
   const handleReset = () => {
-    setPriceRange([0, 1000000])
-    setPropertyType("")
-    setBedrooms("")
-    setBathrooms("")
-    setSize([0, 500])
-    setAmenities([])
-  }
+    onReset();
+  };
 
   return (
-    <div className="bg-white p-4 border-t border-gray-200">
+    <div className="bg-white p-4 border-t border-gray-200 z-100">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
         <Button variant="ghost" size="icon" onClick={onClose}>
@@ -52,12 +87,28 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
       </div>
 
       <div className="space-y-6">
+        <ButtonToggle
+          id="listing-type"
+          label="Listing Type"
+          value={listingType}
+          onChange={(value) => setListingType(value as 'buy' | 'rent' | 'all')}
+          buttons={[
+            { value: 'all', label: 'All' },
+            { value: 'buy', label: 'Buy' },
+            { value: 'rent', label: 'Rent' },
+          ]}
+        />
         <div>
           <h4 className="font-medium mb-2">Price Range</h4>
-          <Slider defaultValue={priceRange} max={1000000} step={1000} onValueChange={setPriceRange} />
+          <Slider
+            defaultValue={priceRange}
+            max={1000000}
+            step={1000}
+            onValueChange={(value) => setPriceRange(value as [number, number])}
+          />
           <div className="flex justify-between mt-2 text-sm text-gray-500">
-            <span>${priceRange[0].toLocaleString()}</span>
-            <span>${priceRange[1].toLocaleString()}</span>
+            <span>€{priceRange[0].toLocaleString()}</span>
+            <span>€{priceRange[1].toLocaleString()}</span>
           </div>
         </div>
 
@@ -68,6 +119,7 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
               <SelectValue placeholder="Select property type" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
               <SelectItem value="apartment">Apartment</SelectItem>
               <SelectItem value="house">House</SelectItem>
               <SelectItem value="villa">Villa</SelectItem>
@@ -85,6 +137,7 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="1">1+</SelectItem>
                 <SelectItem value="2">2+</SelectItem>
                 <SelectItem value="3">3+</SelectItem>
@@ -100,6 +153,7 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
                 <SelectValue placeholder="Any" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="any">Any</SelectItem>
                 <SelectItem value="1">1+</SelectItem>
                 <SelectItem value="2">2+</SelectItem>
                 <SelectItem value="3">3+</SelectItem>
@@ -111,7 +165,13 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
 
         <div>
           <h4 className="font-medium mb-2">Size (m²)</h4>
-          <Slider defaultValue={size} max={500} step={10} onValueChange={setSize} />
+
+          <Slider
+            defaultValue={size}
+            max={500}
+            step={10}
+            onValueChange={(value) => setSize(value as [number, number])}
+          />
           <div className="flex justify-between mt-2 text-sm text-gray-500">
             <span>{size[0]} m²</span>
             <span>{size[1]} m²</span>
@@ -121,18 +181,25 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
         <div>
           <h4 className="font-medium mb-2">Amenities</h4>
           <div className="grid grid-cols-2 gap-2">
-            {["Balcony", "Pool", "Parking", "Garden", "Elevator", "Air Conditioning", "Furnished", "Pet Friendly"].map(
-              (amenity) => (
-                <div key={amenity} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`amenity-${amenity}`}
-                    checked={amenities.includes(amenity)}
-                    onCheckedChange={() => toggleAmenity(amenity)}
-                  />
-                  <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
-                </div>
-              ),
-            )}
+            {[
+              'Balcony',
+              'Pool',
+              'Parking',
+              'Garden',
+              'Elevator',
+              'Air Conditioning',
+              'Furnished',
+              'Pet Friendly',
+            ].map((amenity) => (
+              <div key={amenity} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`amenity-${amenity}`}
+                  checked={amenities.includes(amenity)}
+                  onCheckedChange={() => toggleAmenity(amenity)}
+                />
+                <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -140,12 +207,13 @@ export function PropertyFilters({ onClose }: PropertyFiltersProps) {
           <Button variant="outline" className="flex-1" onClick={handleReset}>
             Reset
           </Button>
-          <Button className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={handleApply}>
+          <Button
+            className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+            onClick={handleApply}>
             Apply Filters
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

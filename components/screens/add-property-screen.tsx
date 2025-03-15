@@ -3,30 +3,26 @@
 import type React from 'react';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
 import { Calendar } from '../ui/calendar';
 import { useTelegram } from '../telegram-provider';
 import { ArrowLeft, Upload, MapPin } from 'lucide-react';
-import ListingTypeToggle from '../listing-toggle';
+import ListingTypeToggle from '../button-toggle';
+import { HomeScreen } from './home-screen';
+import { useDisplayContext } from '@/contexts/Display';
+import ButtonToggle from '../button-toggle';
 // import dynamic from "next/dynamic"
 
 // Dynamically import Leaflet components with no SSR
 // const MapWithNoSSR = dynamic(() => import("@/components/map-component"), { ssr: false })
 
 export function AddPropertyScreen() {
-  const router = useRouter();
+  const { setDisplay, setShowAddPropertyButton } = useDisplayContext();
   const { webApp } = useTelegram();
   const [listingType, setListingType] = useState<'buy' | 'rent'>('buy');
   const [propertyType, setPropertyType] = useState('');
@@ -51,16 +47,16 @@ export function AddPropertyScreen() {
 
     if (webApp) {
       webApp.BackButton.show();
-      webApp.BackButton.onClick(() => router.back());
+      webApp.BackButton.onClick(() => setDisplay(<HomeScreen />));
     }
 
     return () => {
       if (webApp) {
         webApp.BackButton.hide();
-        webApp.BackButton.offClick(() => router.back());
+        webApp.BackButton.offClick(() => setDisplay(<HomeScreen />));
       }
     };
-  }, [webApp, router]);
+  }, [webApp]);
 
   const toggleAmenity = (amenity: string) => {
     if (amenities.includes(amenity)) {
@@ -102,13 +98,18 @@ export function AddPropertyScreen() {
     e.preventDefault();
     // Handle form submission
     alert(`Property added successfully at coordinates: ${position[0]}, ${position[1]}`);
-    router.push('/');
+    setDisplay(<HomeScreen />);
+    setShowAddPropertyButton(true);
   };
 
   return (
     <div className="pb-16">
       <div className="sticky top-0 z-10 bg-white p-4 border-b flex items-center">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2"
+          onClick={() => setDisplay(<HomeScreen />)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h1 className="text-xl font-bold">Add New Property</h1>
@@ -142,14 +143,15 @@ export function AddPropertyScreen() {
           <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
 
           <div className="space-y-4">
-            <ListingTypeToggle
+            <ButtonToggle
               id="listing-type"
               label="Listing Type"
-              btnText1="For Sale"
-              btnText2="For Rent"
-              listingType={listingType}
-              onClick1={() => setListingType('buy')}
-              onClick2={() => setListingType('rent')}
+              value={listingType}
+              onChange={() => setListingType}
+              buttons={[
+                { value: 'buy', label: 'Buy' },
+                { value: 'rent', label: 'Rent' },
+              ]}
             />
 
             <div>
@@ -327,9 +329,8 @@ export function AddPropertyScreen() {
           </p>
           <Calendar
             mode="multiple"
-            required
             selected={availableDays}
-            onSelect={setAvailableDays}
+            onSelect={() => setAvailableDays}
             className="rounded-md border w-full"
           />
         </div>
