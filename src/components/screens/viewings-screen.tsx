@@ -8,6 +8,7 @@ import { Calendar, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
 
 export function ViewingsScreen() {
   const [hasListings, setHasListings] = useState(true)
@@ -141,15 +142,13 @@ export function ViewingsScreen() {
                       >
                         <CardContent className="p-4">
                           <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                              <Image
-                                src={request.requester.avatar || "/placeholder.svg"}
-                                alt={request.requester.name}
-                                width={48}
-                                height={48}
-                                className="object-cover"
-                              />
-                            </div>
+                          <div className="bg-blue text-yellow rounded-full h-[40px] w-[40px] flex">
+                            <Avatar className="bg-blue text-yellow m-auto">
+                              <AvatarFallback>
+                              {`${request.requester.name.split(" ").map((item) => item[0]).join("")}`}
+                              </AvatarFallback>
+                            </Avatar>
+                          </div>
                             <div className="ml-4 flex-1">
                               <div className="flex justify-between">
                                 <h3 className="font-medium">{request.requester.name}</h3>
@@ -221,15 +220,14 @@ export function ViewingsScreen() {
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center">
-                          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                            <Image
-                              src={request.owner.avatar || "/placeholder.svg"}
-                              alt={request.owner.name}
-                              width={48}
-                              height={48}
-                              className="object-cover"
-                            />
+                          <div className="bg-blue text-yellow rounded-full h-[40px] w-[40px] flex">
+                            <Avatar className="bg-blue text-yellow m-auto">
+                              <AvatarFallback>
+                              {`${request.owner.name.split(" ").map((item) => item[0]).join("")}`}
+                              </AvatarFallback>
+                            </Avatar>
                           </div>
+                        
                           <div className="ml-4 flex-1">
                             <div className="flex justify-between">
                               <h3 className="font-medium">{request.owner.name}</h3>
