@@ -6,9 +6,11 @@ import { BottomNavigation } from "../bottom-navigation"
 import { useTelegram } from "../telegram-provider"
 import { Bell, ChevronRight, Home, User } from "lucide-react"
 import Link from "next/link"
+import { useDataContext } from "@/contexts/Data"
 
 export function ProfileScreen() {
   const { user } = useTelegram()
+  const {tgData} = useDataContext();
 
   // Mock data for user's listings
   const myListings = [
@@ -73,9 +75,9 @@ export function ProfileScreen() {
                 </div>
                 <div className="ml-4">
                   <h2 className="font-bold text-lg">
-                    {user?.first_name || "User"} {user?.last_name || ""}
+                    {tgData.user?.first_name || "User"} {tgData.user?.last_name || ""}
                   </h2>
-                  <p className="text-gray-500 text-sm">@{user?.username || "username"}</p>
+                  <p className="text-gray-500 text-sm">@{tgData.user?.username || "username"}</p>
                 </div>
               </div>
             </CardContent>
@@ -169,6 +171,9 @@ export function ProfileScreen() {
                   <p className="text-gray-500">No saved searches yet</p>
                 </div>
               )}
+              <Button className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426] w-full" asChild>
+                    <Link href="/add-search-alert">Add New Search Alert</Link>
+                  </Button>
             </TabsContent>
           </Tabs>
         </div>
