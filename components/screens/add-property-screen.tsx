@@ -12,14 +12,10 @@ import { Checkbox } from '../ui/checkbox';
 import { Calendar } from '../ui/calendar';
 import { useTelegram } from '../telegram-provider';
 import { ArrowLeft, Upload, MapPin } from 'lucide-react';
-import ListingTypeToggle from '../button-toggle';
 import { HomeScreen } from './home-screen';
 import { useDisplayContext } from '@/contexts/Display';
 import ButtonToggle from '../button-toggle';
-// import dynamic from "next/dynamic"
-
-// Dynamically import Leaflet components with no SSR
-// const MapWithNoSSR = dynamic(() => import("@/components/map-component"), { ssr: false })
+import MapWrapper from '../ui/map-wrapper';
 
 export function AddPropertyScreen() {
   const { setDisplay, setShowAddPropertyButton } = useDisplayContext();
@@ -38,8 +34,13 @@ export function AddPropertyScreen() {
   const [availableDays, setAvailableDays] = useState<Date[]>([]);
 
   // Map state
-  const [position, setPosition] = useState<[number, number]>([40.7128, -74.006]); // Default to NYC
+  const [position, setPosition] = useState<[number, number]>([35.8977, 14.5128]); // Default to Valletta, Malta
   const [mapReady, setMapReady] = useState(false);
+
+  const handleBack = () => {
+    setDisplay(<HomeScreen />);
+    setShowAddPropertyButton(true);
+  };
 
   useEffect(() => {
     // This is needed because Leaflet requires window to be defined
@@ -47,13 +48,13 @@ export function AddPropertyScreen() {
 
     if (webApp) {
       webApp.BackButton.show();
-      webApp.BackButton.onClick(() => setDisplay(<HomeScreen />));
+      webApp.BackButton.onClick(handleBack);
     }
 
     return () => {
       if (webApp) {
         webApp.BackButton.hide();
-        webApp.BackButton.offClick(() => setDisplay(<HomeScreen />));
+        webApp.BackButton.offClick(handleBack);
       }
     };
   }, [webApp]);
@@ -96,23 +97,21 @@ export function AddPropertyScreen() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    alert(`Property added successfully at coordinates: ${position[0]}, ${position[1]}`);
     setDisplay(<HomeScreen />);
     setShowAddPropertyButton(true);
   };
 
   return (
     <div className="pb-16">
-      <div className="sticky top-0 z-10 bg-white p-4 border-b flex items-center">
+      <div className="sticky top-0 z-10 bg-blue p-4 border-b flex items-center">
         <Button
           variant="ghost"
           size="icon"
           className="mr-2"
-          onClick={() => setDisplay(<HomeScreen />)}>
-          <ArrowLeft className="h-5 w-5" />
+          onClick={handleBack}>
+          <ArrowLeft className="h-5 w-5 text-white" />
         </Button>
-        <h1 className="text-xl font-bold">Add New Property</h1>
+        <h1 className="text-lg text-white font-bold">Add New Property</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-6">
@@ -248,8 +247,8 @@ export function AddPropertyScreen() {
 
           <div className="mt-4">
             <Label htmlFor="location">Location</Label>
-            <div className="relative mt-1">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <div className="relative mt-1 flex items-center">
+              <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 id="location"
                 value={location}
@@ -261,28 +260,30 @@ export function AddPropertyScreen() {
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="absolute right-1 top-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
                 onClick={handleAddressSearch}>
                 Search
               </Button>
             </div>
           </div>
 
-          <div className="mt-4">
-            <Label className="flex items-center mb-2">
-              <span>Map Location</span>
-              <span className="text-xs text-gray-500 ml-2">
-                (Drag pin to adjust exact location)
-              </span>
-            </Label>
-            <div className="h-60 rounded-md border overflow-hidden relative">
-              {/* {mapReady && <MapWithNoSSR position={position} setPosition={setPosition} />} */}
-              <div className="absolute bottom-2 right-2 z-[1000] bg-white p-2 rounded-md shadow-md text-xs">
-                <div>Lat: {position[0].toFixed(6)}</div>
-                <div>Lng: {position[1].toFixed(6)}</div>
+          {mapReady && (
+            <div className="mt-4">
+              <Label className="flex items-center mb-2">
+                <span>Map Location</span>
+                <span className="text-xs text-gray-500 ml-2">
+                  (Drag pin to adjust exact location)
+                </span>
+              </Label>
+              <div className="h-60 rounded-md border overflow-hidden relative">
+                <MapWrapper position={position} setPosition={setPosition} />
+                <div className="absolute bottom-2 right-2 z-[1000] bg-white p-2 rounded-md shadow-md text-xs">
+                  <div>Lat: {position[0].toFixed(6)}</div>
+                  <div>Lng: {position[1].toFixed(6)}</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-4">
             <Label htmlFor="description">Description</Label>

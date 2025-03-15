@@ -157,6 +157,8 @@ export function HomeScreen() {
   const handleApplyFilters = (newFilters: Filters) => {
     setFilters(newFilters);
     setFiltersVisible(false);
+    setShowAddPropertyButton(true);
+
   };
 
   const handleResetFilters = () => {
