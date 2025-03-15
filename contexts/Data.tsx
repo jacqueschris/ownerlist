@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useLocation } from '../hooks/useLocation';
-import { DataContextType } from '../types';
 import { useDisplayContext } from './Display';
+import { DataContextType } from '@/types';
 
 // Create the context with a default value
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -73,4 +73,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   );
 };
 
-export const useDataContext = () => useContext(DataContext);
+export const useDataContext = () => {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error("useDataContext must be used within a DisplayProvider");
+  }
+  return context;
+};
