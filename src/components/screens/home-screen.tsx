@@ -114,7 +114,7 @@ export function HomeScreen() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 z-20">
+      <div className="fixed bottom-[75px] right-4 z-20">
         <Button
           className="rounded-full w-14 h-14 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
           onClick={handleAddProperty}
