@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
-import { Heart } from 'lucide-react';
+import { Bath, Bed, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Property } from '@/types';
 import { useDisplayContext } from '@/contexts/Display';
@@ -50,13 +50,13 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
             setDisplay(<PropertyDetail id={property.id as string} />);
           }}>
           <Card className="overflow-hidden h-full">
-            <div className="relative">
+            <div className="relative bg-[#dde1e8]">
               <Image
                 src={property.image || '/placeholder.svg'}
                 alt={property.title}
                 width={400}
                 height={300}
-                className="w-full h-32 object-cover"
+                className="w-full h-32 object-contain"
               />
               <button
                 className="absolute top-2 right-2 p-1 bg-white rounded-full"
@@ -77,9 +77,9 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
               <h3 className="text-sm font-medium line-clamp-1">{property.title}</h3>
               <p className="text-xs text-gray-500 mt-1">{property.location}</p>
               <div className="flex text-xs text-gray-500 mt-2 space-x-2">
-                <span>{property.bedrooms} bd</span>
+                <span className='flex'>{property.bedrooms} <Bed className='h-4 w-4 ml-2 m-auto'/></span>
                 <span>•</span>
-                <span>{property.bathrooms} ba</span>
+                <span className='flex'>{property.bathrooms} <Bath className='h-4 w-4 ml-2 m-auto'/></span>
                 <span>•</span>
                 <span>{property.size} m²</span>
               </div>

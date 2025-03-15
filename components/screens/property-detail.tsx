@@ -98,12 +98,12 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
     <div className="pb-16">
       {/* Image Gallery */}
       <div className="relative">
-        <div className="relative h-64 w-full">
+        <div className="relative h-64 w-full bg-[#dde1e8]">
           <Image
             src={property.images[activeImageIndex] || '/placeholder.svg'}
             alt={property.title}
             fill
-            className="object-cover"
+            className="object-contain"
           />
           <div className="absolute top-4 left-4 z-10">
             <Button

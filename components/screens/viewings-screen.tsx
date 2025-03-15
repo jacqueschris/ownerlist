@@ -187,7 +187,7 @@ export function ViewingsScreen() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="text-white bg-[#2B2D42] border-[#2B2D42] hover:bg-[#3e4061]"
+                                    className="text-white bg-[#2B2D42] border-[#2B2D42] hover:bg-[#3e4061] hover:text-white"
                                     onClick={() => handleReject(request.id)}
                                   >
                                     <X className="h-4 w-4 mr-1" />

@@ -20,8 +20,8 @@ export default function MapComponent({ position, setPosition }: MapComponentProp
 
     // Create a custom icon instead of modifying the default icon
     const customIcon = new L.Icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+      iconUrl: 'marker.png',
+      iconRetinaUrl: 'marker2x.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
@@ -34,13 +34,13 @@ export default function MapComponent({ position, setPosition }: MapComponentProp
       const mapContainer = document.getElementById('map');
       if (mapContainer && !mapRef.current) {
         // Create map
-        mapRef.current = L.map('map').setView(position, 13);
+        mapRef.current = L.map('map').setView(position, 17);
 
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
+          maxZoom: 500,
         }).addTo(mapRef.current);
 
         // Add draggable marker with custom icon

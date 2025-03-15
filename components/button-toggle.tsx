@@ -37,7 +37,7 @@ export default function ButtonToggle({
             size="lg"
             className={cn(
               'flex-1 transition-colors',
-              value === btn.value && 'bg-blue text-white hover:bg-blue/90'
+              value === btn.value && 'bg-blue text-white hover:bg-blue/90 hover:text-white'
             )}
             onClick={() => onChange(btn.value)}
           >
