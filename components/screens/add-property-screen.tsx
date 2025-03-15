@@ -330,7 +330,7 @@ export function AddPropertyScreen() {
             required
             selected={availableDays}
             onSelect={setAvailableDays}
-            className="rounded-md border"
+            className="rounded-md border w-full"
           />
         </div>
 
