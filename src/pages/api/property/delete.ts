@@ -7,9 +7,9 @@ import { parse } from '@telegram-apps/init-data-node';
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const client = await clientPromise;
   const db = client.db(process.env.DB_NAME); // Replace with your actual DB name
-  const usersCollection = db.collection('users');
+  const usersCollection = db.collection('properties');
 
-  if (req.method !== 'POST') {
+  if (req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -31,18 +31,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   try {
     const result = await usersCollection.deleteOne(
-      { id: userData.user.id }, // Finding the user by their ID
+      { id: req.body.id }, // Finding the user by their ID
     );
 
     if (result.deletedCount === 0) {
       console.log('User not found');
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'Property not found' });
     }
   } catch (err) {
     return res.status(400).json({
-      error: 'Failed to delete user',
+      error: 'Failed to delete property',
     });
   }
 
-  return res.status(200).json({ success: true, message: 'User deleted successfully' });
+  return res.status(200).json({ success: true, message: 'Property deleted successfully' });
 }

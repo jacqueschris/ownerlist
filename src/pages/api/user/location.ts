@@ -6,7 +6,7 @@ import { parse } from '@telegram-apps/init-data-node';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const client = await clientPromise;
-  const db = client.db('flirthub'); // Replace with your actual DB name
+  const db = client.db(process.env.DB_NAME); // Replace with your actual DB name
   const usersCollection = db.collection('users');
 
   if (req.method !== 'POST') {

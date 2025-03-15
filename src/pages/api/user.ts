@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     // Connect to MongoDB
     const client = await clientPromise;
-    const db = client.db('flirthub'); // Change to your DB name
+    const db = client.db(process.env.DB_NAME); // Change to your DB name
     const usersCollection = db.collection('users');
 
     if (!req.body.token || req.body.token.length == 0) {
