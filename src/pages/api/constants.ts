@@ -1,0 +1,1 @@
+export const TIER_DAYS_EXPIRY = 30;
