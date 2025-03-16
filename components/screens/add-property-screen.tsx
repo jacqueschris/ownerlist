@@ -115,28 +115,7 @@ export function AddPropertyScreen() {
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Property Images</h2>
-          <div className="flex flex-wrap gap-2">
-            {images.map((image, index) => (
-              <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden">
-                <img
-                  src={image || '/placeholder.svg'}
-                  alt={`Property ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              className="w-24 h-24 flex flex-col items-center justify-center"
-              onClick={handleAddImage}>
-              <Upload className="h-6 w-6 mb-1" />
-              <span className="text-xs">Add Photo</span>
-            </Button>
-          </div>
-        </div>
+        
 
         <div>
           <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
@@ -320,6 +299,29 @@ export function AddPropertyScreen() {
                 <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Property Images</h2>
+          <div className="flex flex-wrap gap-2">
+            {images.map((image, index) => (
+              <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden">
+                <img
+                  src={image || '/placeholder.svg'}
+                  alt={`Property ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-24 h-24 flex flex-col items-center justify-center"
+              onClick={handleAddImage}>
+              <Upload className="h-6 w-6 mb-1" />
+              <span className="text-xs">Add Photo</span>
+            </Button>
           </div>
         </div>
 
