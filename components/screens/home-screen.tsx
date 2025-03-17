@@ -1,6 +1,6 @@
 'use client';
 
-import { isValidElement, useState } from 'react';
+import { useState } from 'react';
 import { SearchBar } from '../ui/search-bar';
 import { PropertyFilters } from '../property-filters';
 import { PropertyGrid } from '../property-grid';
@@ -9,8 +9,7 @@ import { Button } from '../ui/button';
 import { Plus } from 'lucide-react';
 import { AddPropertyScreen } from './add-property-screen';
 import { useDisplayContext } from '@/contexts/Display';
-import type { Property } from '@/types';
-import { show } from '@telegram-apps/sdk/dist/dts/scopes/components/back-button/back-button';
+import { useDataContext } from '@/contexts/Data';
 
 // Define a type for the filters
 interface Filters {
@@ -25,6 +24,7 @@ interface Filters {
 
 export function HomeScreen() {
   const { setDisplay, showAddPropertyButton, setShowAddPropertyButton } = useDisplayContext();
+  const { properties } = useDataContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filtersVisible, setFiltersVisible] = useState(false);
 
@@ -39,64 +39,11 @@ export function HomeScreen() {
     amenities: [],
   });
 
-  // Mock data for properties
-  const properties: Property[] = [
-    {
-      id: '1',
-      title: 'Modern 2BR Apartment in Downtown',
-      price: 250000,
-      location: 'Downtown, New York',
-      type: 'Apartment',
-      bedrooms: 2,
-      bathrooms: 1,
-      size: 85,
-      image: '/apartment.png',
-      isFavorite: false,
-      listingType: 'buy',
-    },
-    {
-      id: '2',
-      title: 'Spacious 3BR House with Garden',
-      price: 1500,
-      location: 'Brooklyn, New York',
-      type: 'House',
-      bedrooms: 3,
-      bathrooms: 2,
-      size: 120,
-      image: '/house.png',
-      isFavorite: true,
-      listingType: 'rent',
-    },
-    {
-      id: '3',
-      title: 'Luxury 1BR Studio with City View',
-      price: 180000,
-      location: 'Manhattan, New York',
-      type: 'Studio',
-      bedrooms: 1,
-      bathrooms: 1,
-      size: 55,
-      image: '/office.png',
-      isFavorite: false,
-      listingType: 'buy',
-    },
-    {
-      id: '4',
-      title: 'Cozy 2BR Apartment near Park',
-      price: 1200,
-      location: 'Queens, New York',
-      type: 'Apartment',
-      bedrooms: 2,
-      bathrooms: 1,
-      size: 75,
-      image: '/apartment.png',
-      isFavorite: false,
-      listingType: 'rent',
-    },
-  ];
-
+  if (!properties) {
+    return <div>Loading...</div>;
+  }
   // Apply all filters to properties
-  const filteredProperties = properties.filter((property) => {
+  const filteredProperties = properties!.filter((property) => {
     // Search query filter
     if (searchQuery && !property.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
@@ -115,7 +62,7 @@ export function HomeScreen() {
     // Property type filter
     if (
       filters.propertyType &&
-      property.type.toLowerCase() !== filters.propertyType.toLowerCase()
+      property.propertyType.toLowerCase() !== filters.propertyType.toLowerCase()
     ) {
       return false;
     }
@@ -149,6 +96,8 @@ export function HomeScreen() {
     return true;
   });
 
+  console.log(filteredProperties);
+
   const handleAddProperty = () => {
     setDisplay(<AddPropertyScreen />);
     setShowAddPropertyButton(false);
@@ -158,7 +107,6 @@ export function HomeScreen() {
     setFilters(newFilters);
     setFiltersVisible(false);
     setShowAddPropertyButton(true);
-
   };
 
   const handleResetFilters = () => {

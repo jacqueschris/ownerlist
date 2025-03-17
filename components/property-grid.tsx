@@ -52,7 +52,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
           <Card className="overflow-hidden h-full">
             <div className="relative bg-[#dde1e8]">
               <Image
-                src={property.image || '/placeholder.svg'}
+                src={property.image || `/${property.propertyType}.png`}
                 alt={property.title}
                 width={400}
                 height={300}
@@ -77,9 +77,13 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
               <h3 className="text-sm font-medium line-clamp-1">{property.title}</h3>
               <p className="text-xs text-gray-500 mt-1">{property.location}</p>
               <div className="flex text-xs text-gray-500 mt-2 space-x-2">
-                <span className='flex'>{property.bedrooms} <Bed className='h-4 w-4 ml-2 m-auto'/></span>
+                <span className="flex">
+                  {property.bedrooms} <Bed className="h-4 w-4 ml-2 m-auto" />
+                </span>
                 <span>•</span>
-                <span className='flex'>{property.bathrooms} <Bath className='h-4 w-4 ml-2 m-auto'/></span>
+                <span className="flex">
+                  {property.bathrooms} <Bath className="h-4 w-4 ml-2 m-auto" />
+                </span>
                 <span>•</span>
                 <span>{property.size} m²</span>
               </div>

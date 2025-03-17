@@ -11,6 +11,9 @@ export interface DataContextType {
   distance: number;
   setDistance: React.Dispatch<React.SetStateAction<number>>;
   location: any;
+  properties?: Property[];
+  setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
+  getProperties: (token: string) => Promise<void>;
 }
 
 export interface DisplayContextType {
@@ -29,7 +32,7 @@ export interface Property {
   title: string;
   price: number;
   location: string;
-  type: string;
+  propertyType: string;
   bedrooms: number;
   bathrooms: number;
   size: number;

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useLocation } from '../hooks/useLocation';
 import { useDisplayContext } from './Display';
-import { DataContextType } from '@/types';
+import { DataContextType, Property } from '@/types';
 
 // Create the context with a default value
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -17,6 +17,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [data, setData] = useState<any>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [distance, setDistance] = useState<number>(30);
+  const [properties, setProperties] = useState<Property[]>();
   const { setDisplay } = useDisplayContext();
   let { location } = useLocation();
 
@@ -53,6 +54,14 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return res.data.invoiceLink;
   }
 
+  const getProperties = async (token: string) => {
+    try {
+      let res = await axios.post(`/api/property/list`, { token });
+      setProperties(res.data.properties);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <DataContext.Provider
@@ -67,6 +76,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         distance,
         setDistance,
         location,
+        properties,
+        setProperties,
+        getProperties,
       }}>
       {children}
     </DataContext.Provider>
@@ -76,7 +88,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 export const useDataContext = () => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error("useDataContext must be used within a DisplayProvider");
+    throw new Error('useDataContext must be used within a DisplayProvider');
   }
   return context;
 };

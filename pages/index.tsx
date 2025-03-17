@@ -6,21 +6,25 @@ import { useDataContext } from '@/contexts/Data';
 import { useDisplayContext } from '@/contexts/Display';
 
 const Home: NextPage = () => {
-  const { getUserData, setTGData } = useDataContext();
-  const { display, bgColor } = useDisplayContext();
+  const { getUserData, setTGData, getProperties } = useDataContext();
+
+  const { display } = useDisplayContext();
 
   useEffect(() => {
-    let data: any = parseQueryString(window.Telegram.WebApp.initData);
-    if (data && data.user) {
-      setTGData(data);
+    (async () => {
+      let data: any = parseQueryString(window.Telegram.WebApp.initData);
+      if (data && data.user) {
+        setTGData(data);
 
-      getUserData(data.user.id).then((data: any) => {});
-    }
+        await getUserData(data.user.id);
+        await getProperties(window.Telegram.WebApp.initData);
+      }
+    })();
   }, [window.Telegram.WebApp.initData]);
 
   function parseQueryString(queryString: string) {
     let params = new URLSearchParams(queryString);
-    let result:any = {};
+    let result: any = {};
 
     for (let [key, value] of params.entries()) {
       try {
@@ -28,7 +32,7 @@ const Home: NextPage = () => {
         // Attempt to parse JSON if the value is a valid JSON string
         if (result[key].startsWith('{') && result[key].endsWith('}')) {
           result[key] = JSON.parse(result[key]);
-        } 
+        }
       } catch (e) {
         console.error(`Error parsing key ${key}:`, e);
       }
@@ -37,11 +41,7 @@ const Home: NextPage = () => {
     return result;
   }
 
-  return (
-    <Layout>
-      {display}
-    </Layout>
-  );
+  return <Layout>{display}</Layout>;
 };
 
 export default Home;
