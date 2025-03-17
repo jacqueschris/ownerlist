@@ -10,14 +10,16 @@ import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Checkbox } from "../ui/checkbox"
 import { useTelegram } from "../telegram-provider"
-import { ArrowLeft, MapPin, X, Plus, Clock, Loader2, ImageIcon } from "lucide-react"
+import { ArrowLeft, MapPin, X, Plus, Clock, Loader2, ImageIcon, AlertCircle, CheckCircle2 } from "lucide-react"
 import { HomeScreen } from "./home-screen"
 import { useDisplayContext } from "@/contexts/Display"
+import { useDataContext } from "@/contexts/Data"
 import ButtonToggle from "../button-toggle"
 import MapWrapper from "../ui/map-wrapper"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast"
 import axios from "axios"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Type for selected image files
 interface SelectedImage {
@@ -27,6 +29,7 @@ interface SelectedImage {
 
 export function AddPropertyScreen() {
   const { setDisplay, setShowAddPropertyButton } = useDisplayContext()
+  const { isLoading } = useDataContext()
   const { webApp } = useTelegram()
   const [listingType, setListingType] = useState<"buy" | "rent">("buy")
   const [propertyType, setPropertyType] = useState("")
@@ -37,6 +40,7 @@ export function AddPropertyScreen() {
   const [size, setSize] = useState("")
   const [location, setLocation] = useState("")
   const [description, setDescription] = useState("")
+  const [descriptionError, setDescriptionError] = useState("")
   const [amenities, setAmenities] = useState<string[]>([])
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,7 +53,9 @@ export function AddPropertyScreen() {
   >([])
   const [selectedDay, setSelectedDay] = useState<string>("")
   const [timeSlot, setTimeSlot] = useState<{ start: string; end: string }>({ start: "09:00", end: "10:00" })
+  const [timeSlotError, setTimeSlotError] = useState<string>("")
   const [error, setError] = useState<string>("")
+  const [locationError, setLocationError] = useState<string>("")
 
   // Map state
   const [position, setPosition] = useState<[number, number]>([35.8977, 14.5128]) // Default to Valletta, Malta
@@ -85,6 +91,26 @@ export function AddPropertyScreen() {
       })
     }
   }, [selectedImages])
+
+  // Validate description when it changes
+  useEffect(() => {
+    if (description.length > 0 && description.length < 10) {
+      setDescriptionError("Description must be at least 10 characters long")
+    } else {
+      setDescriptionError("")
+    }
+  }, [description])
+
+  // Validate time slot when it changes
+  useEffect(() => {
+    if (timeSlot.start && timeSlot.end) {
+      if (timeSlot.start >= timeSlot.end) {
+        setTimeSlotError("Start time must be before end time")
+      } else {
+        setTimeSlotError("")
+      }
+    }
+  }, [timeSlot])
 
   const toggleAmenity = (amenity: string) => {
     if (amenities.includes(amenity)) {
@@ -126,7 +152,12 @@ export function AddPropertyScreen() {
   }
 
   const handleAddressSearch = async () => {
-    if (location.trim() === "") return
+    if (location.trim() === "") {
+      setLocationError("Please enter a location to search")
+      return
+    }
+
+    setLocationError("")
 
     try {
       // Using Nominatim for geocoding (OpenStreetMap)
@@ -138,12 +169,16 @@ export function AddPropertyScreen() {
       if (data && data.length > 0) {
         const { lat, lon } = data[0]
         setPosition([Number.parseFloat(lat), Number.parseFloat(lon)])
+        toast({
+          title: "Location found",
+          description: "You can adjust the pin position if needed",
+        })
       } else {
-        alert("Location not found. Please try a different address.")
+        setLocationError("Location not found. Please try a different address or manually position the pin on the map.")
       }
     } catch (error) {
       console.error("Error searching for address:", error)
-      alert("Error searching for address. Please try again.")
+      setLocationError("Error searching for address. Please try again or manually position the pin on the map.")
     }
   }
 
@@ -161,6 +196,14 @@ export function AddPropertyScreen() {
   }
 
   const addTimeSlot = (day: string) => {
+    // Validate time slot before adding
+    if (timeSlot.start >= timeSlot.end) {
+      setTimeSlotError("Start time must be before end time")
+      return
+    }
+
+    setTimeSlotError("")
+
     setAvailabilitySchedule(
       availabilitySchedule.map((schedule) => {
         if (schedule.day === day) {
@@ -193,9 +236,17 @@ export function AddPropertyScreen() {
     )
   }
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Reset all errors
+    setError("")
+
+    // Validate description length
+    if (description.length < 10) {
+      setError("Description must be at least 10 characters long")
+      return
+    }
 
     // Validate that all days have at least one time slot
     const dayWithoutTimeSlots = availabilitySchedule.find((schedule) => schedule.timeSlots.length === 0)
@@ -204,14 +255,10 @@ export function AddPropertyScreen() {
       return
     }
 
-    // Clear any previous errors
-    setError("")
-
     // Start submission process
     setIsSubmitting(true)
 
     try {
-
       // Build the complete property object
       const propertyData = {
         listingType,
@@ -228,23 +275,30 @@ export function AddPropertyScreen() {
         availabilitySchedule,
       }
 
-
-      const formData = new FormData();
+      const formData = new FormData()
       selectedImages.forEach((file) => {
-        formData.append("files", file.file); // Same key for all files
-      });
-      formData.append("property", JSON.stringify(propertyData)); // Append additional data
-      formData.append("token", window.Telegram.WebApp.initData); // Append additional data
+        formData.append("files", file.file) // Same key for all files
+      })
+      formData.append("property", JSON.stringify(propertyData)) // Append additional data
+      formData.append("token", window.Telegram.WebApp.initData) // Append additional data
 
       // Log the complete object
       console.log("Property Data:", propertyData)
 
-      const response = await axios.post('/api/property/create', formData);
+      const response = await axios.post("/api/property/create", formData)
 
       if (response.status != 200) {
-        setError('Failed to submit property');
+        setError("Failed to submit property")
         return
       }
+
+      // Show success toast notification
+      toast({
+        title: "Property Added Successfully",
+        description: "Your property listing has been created",
+        variant: "default",
+        icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+      })
 
       // Continue with form submission
       setDisplay(<HomeScreen />)
@@ -393,6 +447,12 @@ export function AddPropertyScreen() {
                 Search
               </Button>
             </div>
+            {locationError && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{locationError}</AlertDescription>
+              </Alert>
+            )}
           </div>
 
           {mapReady && (
@@ -418,9 +478,15 @@ export function AddPropertyScreen() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe your property..."
-              className="mt-1"
+              className={`mt-1 ${descriptionError ? "border-red-500" : ""}`}
               rows={5}
             />
+            {descriptionError && (
+              <Alert variant="destructive" className="mt-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{descriptionError}</AlertDescription>
+              </Alert>
+            )}
           </div>
         </div>
 
@@ -468,14 +534,14 @@ export function AddPropertyScreen() {
                 onChange={handleFileChange}
                 accept="image/*"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                disabled={isSubmitting}
+                disabled={isLoading || isSubmitting}
                 multiple
               />
               <Button
                 type="button"
                 variant="outline"
                 className="w-24 h-24 flex flex-col items-center justify-center"
-                disabled={isSubmitting}
+                disabled={isLoading || isSubmitting}
               >
                 <ImageIcon className="h-6 w-6 mb-1" />
                 <span className="text-xs">Add Photos</span>
@@ -510,7 +576,9 @@ export function AddPropertyScreen() {
               <Button
                 type="button"
                 onClick={addDay}
-                disabled={!selectedDay || availabilitySchedule.some((schedule) => schedule.day === selectedDay)}
+                disabled={
+                  !selectedDay || availabilitySchedule.some((schedule) => schedule.day === selectedDay) || isLoading
+                }
                 className="bg-[#F8F32B] text-black hover:bg-[#e9e426]"
               >
                 <Plus className="h-4 w-4 mr-1" /> Add Day
@@ -528,7 +596,13 @@ export function AddPropertyScreen() {
                 <div key={schedule.day} className="border rounded-md p-3">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-medium">{schedule.day}</h3>
-                    <Button variant="ghost" size="sm" onClick={() => removeDay(schedule.day)} className="h-8 w-8 p-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeDay(schedule.day)}
+                      className="h-8 w-8 p-0"
+                      disabled={isLoading}
+                    >
                       <X className="h-4 w-4" />
                       <span className="sr-only">Remove {schedule.day}</span>
                     </Button>
@@ -548,6 +622,7 @@ export function AddPropertyScreen() {
                           size="sm"
                           onClick={() => removeTimeSlot(schedule.day, index)}
                           className="h-6 w-6 p-0"
+                          disabled={isLoading}
                         >
                           <X className="h-3 w-3" />
                           <span className="sr-only">Remove time slot</span>
@@ -557,7 +632,7 @@ export function AddPropertyScreen() {
 
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full mt-1">
+                        <Button variant="outline" size="sm" className="w-full mt-1" disabled={isLoading}>
                           <Plus className="h-3 w-3 mr-1" /> Add Time Slot
                         </Button>
                       </DialogTrigger>
@@ -574,6 +649,7 @@ export function AddPropertyScreen() {
                                 type="time"
                                 value={timeSlot.start}
                                 onChange={(e) => setTimeSlot({ ...timeSlot, start: e.target.value })}
+                                className={timeSlotError ? "border-red-500" : ""}
                               />
                             </div>
                             <div className="space-y-2">
@@ -583,13 +659,16 @@ export function AddPropertyScreen() {
                                 type="time"
                                 value={timeSlot.end}
                                 onChange={(e) => setTimeSlot({ ...timeSlot, end: e.target.value })}
+                                className={timeSlotError ? "border-red-500" : ""}
                               />
                             </div>
                           </div>
+                          {timeSlotError && <p className="text-red-500 text-sm">{timeSlotError}</p>}
                           <Button
                             type="button"
                             onClick={() => addTimeSlot(schedule.day)}
                             className="bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                            disabled={!!timeSlotError || isLoading}
                           >
                             Add Time Slot
                           </Button>
@@ -603,8 +682,12 @@ export function AddPropertyScreen() {
           </div>
         </div>
         {error && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">{error}</div>}
-        <Button type="submit" className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]" disabled={isSubmitting}>
-          {isSubmitting ? (
+        <Button
+          type="submit"
+          className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+          disabled={isLoading || isSubmitting}
+        >
+          {isLoading || isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Uploading Images & Submitting...

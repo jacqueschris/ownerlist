@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 export const propertySchema = z.object({
+  id: z.string(),
   listingType: z.enum(["buy", "rent"]),
   propertyType: z.string().min(2),
   title: z.string().min(3),
-  price: z.string().min(1),
+  price: z.number(),
   bedrooms: z.string().min(1),
   bathrooms: z.string().min(1),
   size: z.string().min(1),
