@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+html {
+  font-family: var(--font-poppins);
+}
+
 @layer base {
   :root {
     --telegram-bg-color: var(--tg-theme-bg-color, #ffffff);
@@ -38,9 +48,6 @@
     --radius: 0.5rem;
   }
 
-  html {
-    @apply font-sans;
-  }
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -68,8 +75,6 @@
     --chart-5: 340 75% 55%;
   }
 }
-
-
 
 @layer base {
   * {
