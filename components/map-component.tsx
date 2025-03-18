@@ -19,9 +19,11 @@ const DefaultIcon = L.icon({
 function DraggableMarker({
   position,
   setPosition,
+  dragable = true
 }: {
   position: [number, number]
   setPosition: (pos: [number, number]) => void
+  dragable: boolean
 }) {
   const markerRef = useRef<L.Marker>(null)
 
@@ -36,7 +38,7 @@ function DraggableMarker({
   }
 
   return (
-    <Marker draggable={true} eventHandlers={eventHandlers} position={position} ref={markerRef} icon={DefaultIcon} />
+    <Marker draggable={dragable} eventHandlers={eventHandlers} position={position} ref={markerRef} icon={DefaultIcon} />
   )
 }
 
@@ -53,9 +55,10 @@ function LocationSearch({ setPosition }: { setPosition: (pos: [number, number]) 
 interface MapComponentProps {
   position: [number, number]
   setPosition: (pos: [number, number]) => void
+  dragable?: boolean
 }
 
-export default function MapComponent({ position, setPosition }: MapComponentProps) {
+export default function MapComponent({ position, setPosition, dragable = true }: MapComponentProps) {
   useEffect(() => {
     // Fix for Leaflet marker icons in Next.js
     L.Marker.prototype.options.icon = DefaultIcon
@@ -67,7 +70,7 @@ export default function MapComponent({ position, setPosition }: MapComponentProp
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <DraggableMarker position={position} setPosition={setPosition} />
+      <DraggableMarker dragable={dragable} position={position} setPosition={setPosition} />
       <LocationSearch setPosition={setPosition} />
     </MapContainer>
   )

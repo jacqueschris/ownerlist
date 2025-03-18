@@ -21,48 +21,21 @@ import {
 } from 'lucide-react';
 import { HomeScreen } from './home-screen';
 import { useDisplayContext } from '@/contexts/Display';
+import { Property } from '@/types';
+import { formatNumberWithCommas } from '@/components/lib/utils';
+import MapWrapper from '../ui/map-wrapper';
+import { Badge } from '../ui/badge';
 
 interface PropertyDetailProps {
-  id: string;
+  property: Property;
 }
 
-export function PropertyDetail({ id }: PropertyDetailProps) {
+export function PropertyDetail({ property }: PropertyDetailProps) {
   const { webApp } = useTelegram();
   const { setDisplay } = useDisplayContext();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(-1);
   const [date, setDate] = useState<Date | undefined>(undefined);
-
-  // Mock property data
-  const property = {
-    id,
-    title: 'Modern 2BR Apartment in Downtown',
-    price: 250000,
-    location: 'Downtown, New York',
-    coordinates: {
-      lat: 40.7128,
-      lng: -74.006,
-    },
-    type: 'Apartment',
-    bedrooms: 2,
-    bathrooms: 1,
-    size: 85,
-    description:
-      'This beautiful modern apartment features an open floor plan with large windows providing plenty of natural light. The kitchen is equipped with stainless steel appliances and granite countertops. The master bedroom has a walk-in closet and an en-suite bathroom. The second bedroom is perfect for a home office or guest room. The building offers amenities such as a fitness center, rooftop terrace, and 24-hour concierge service.',
-    images: [
-      '/placeholder.svg?height=400&width=600',
-      '/placeholder.svg?height=400&width=600',
-      '/placeholder.svg?height=400&width=600',
-      '/placeholder.svg?height=400&width=600',
-    ],
-    amenities: ['Balcony', 'Elevator', 'Air Conditioning', 'Parking', 'Furnished'],
-    owner: {
-      name: 'John Doe',
-      phone: '+1 234 567 8901',
-      email: 'john.doe@example.com',
-    },
-    listingType: 'buy',
-  };
 
   useEffect(() => {
     if (webApp) {
@@ -88,8 +61,9 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
   };
 
   const openGoogleMaps = () => {
+    console.log(`https://www.google.com/maps/search/?api=1&query=${property.position[0]}%2C${property.position[1]}`)
     window.open(
-      `https://www.google.com/maps/search/?api=1&query=${property.coordinates.lat},${property.coordinates.lng}`,
+      `https://www.google.com/maps/search/?api=1&query=${property.position[0]}%2C${property.position[1]}`,
       '_blank'
     );
   };
@@ -100,7 +74,7 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
       <div className="relative">
         <div className="relative h-64 w-full bg-[#dde1e8]">
           <Image
-            src={property.images[activeImageIndex] || '/placeholder.svg'}
+            src={activeImageIndex > -1 ? property.images[activeImageIndex] : `/${property.propertyType.toLowerCase()}.png`}
             alt={property.title}
             fill
             className="object-contain"
@@ -161,11 +135,12 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
               <MapPin className="h-4 w-4 mr-1" />
               <span>{property.location}</span>
             </div>
+            <Badge className='bg-blue text-yellow py-2 px-5 mt-2'>{property.propertyType.toUpperCase()}</Badge>
           </div>
           <div className="text-2xl font-bold">
             {property.listingType === 'buy'
-              ? `$${property.price.toLocaleString()}`
-              : `$${property.price}/month`}
+              ? `€${formatNumberWithCommas(property.price)}`
+              : `€${formatNumberWithCommas(property.price)}/month`}
           </div>
         </div>
 
@@ -196,18 +171,9 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
               <p className="text-sm text-gray-600">{property.description}</p>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Property Type</h3>
-              <p className="text-sm text-gray-600">{property.type}</p>
-            </div>
-            <div>
               <h3 className="font-semibold mb-2">Location</h3>
               <div className="relative h-40 w-full rounded-lg overflow-hidden mb-2">
-                <Image
-                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+F8F32B(${property.coordinates.lng},${property.coordinates.lat})/${property.coordinates.lng},${property.coordinates.lat},14,0/400x200?access_token=pk.eyJ1IjoiZXhhbXBsZXVzZXIiLCJhIjoiY2xhbXBsZSJ9.example`}
-                  alt="Property location map"
-                  fill
-                  className="object-cover"
-                />
+              <MapWrapper draggable={false} position={[property.position[0], property.position[1]]} />
               </div>
               <Button variant="outline" className="w-full text-[#2B2D42]" onClick={openGoogleMaps}>
                 <ExternalLink className="h-4 w-4 mr-2" />
@@ -234,10 +200,7 @@ export function PropertyDetail({ id }: PropertyDetailProps) {
                     <span className="font-medium">Name:</span> {property.owner.name}
                   </p>
                   <p className="text-sm">
-                    <span className="font-medium">Phone:</span> {property.owner.phone}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-medium">Email:</span> {property.owner.email}
+                    <span className="font-medium">Phone:</span> {property.owner.username}
                   </p>
                 </div>
                 <Button className="w-full mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]">

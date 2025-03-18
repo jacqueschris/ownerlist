@@ -27,13 +27,24 @@ export interface DisplayContextType {
   setShowAddPropertyButton: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+export interface PropertyOwner {
+  username: string;
+  name: string;
+  id: string;
+}
+
 export interface Property {
   id: string;
   title: string;
   price: number;
   location: string;
+  description: string;
   propertyType: string;
   bedrooms: number;
+  position: number[];
+  amenities: string[];
+  images: string[];
+  owner: PropertyOwner;
   bathrooms: number;
   size: number;
   image: string;

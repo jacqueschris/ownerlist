@@ -2,39 +2,13 @@
 import { PropertyGrid } from '../property-grid';
 import { BottomNavigation } from '../bottom-navigation';
 import { useTelegram } from '../telegram-provider';
+import { Property } from '@/types';
 
 export function FavoritesScreen() {
   const { webApp } = useTelegram();
 
   // Mock data for favorite properties
-  const favoriteProperties = [
-    {
-      id: '2',
-      title: 'Spacious 3BR House with Garden',
-      price: 1500,
-      location: 'Brooklyn, New York',
-      propertyType: 'House',
-      bedrooms: 3,
-      bathrooms: 2,
-      size: 120,
-      image: '/house.png',
-      isFavorite: true,
-      listingType: 'rent',
-    },
-    {
-      id: '5',
-      title: 'Luxury Penthouse with Terrace',
-      price: 450000,
-      location: 'Manhattan, New York',
-      propertyType: 'Penthouse',
-      bedrooms: 3,
-      bathrooms: 2,
-      size: 150,
-      image: '/penthouse.png',
-      isFavorite: true,
-      listingType: 'buy',
-    },
-  ];
+  let favoriteProperties: Property[] = [];
 
   return (
     <div className="flex flex-col h-screen">

@@ -13,10 +13,11 @@ const MapWithNoSSR = dynamic(() => import('./map-component'), {
 
 interface MapWrapperProps {
   position: [number, number];
-  setPosition: (position: [number, number]) => void;
+  setPosition?: (position: [number, number]) => void;
+  draggable?: boolean;
 }
 
-export default function MapWrapper({ position, setPosition }: MapWrapperProps) {
+export default function MapWrapper({ position, setPosition, draggable=true }: MapWrapperProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -32,5 +33,5 @@ export default function MapWrapper({ position, setPosition }: MapWrapperProps) {
     );
   }
 
-  return <MapWithNoSSR position={position} setPosition={setPosition} />;
+  return <MapWithNoSSR position={position} setPosition={setPosition} draggable={draggable} />;
 }

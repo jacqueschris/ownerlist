@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Property } from '@/types';
 import { useDisplayContext } from '@/contexts/Display';
 import { PropertyDetail } from './screens/property-detail';
+import { formatNumberWithCommas } from '@/components/lib/utils';
 
 interface PropertyGridProps {
   properties: Property[];
@@ -32,6 +33,8 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
     }));
   };
 
+  
+
   if (properties.length === 0) {
     return (
       <div className="text-center py-10">
@@ -47,7 +50,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
           className=" cursor-pointer"
           key={property.id}
           onClick={() => {
-            setDisplay(<PropertyDetail id={property.id as string} />);
+            setDisplay(<PropertyDetail property={property} />);
           }}>
           <Card className="overflow-hidden h-full">
             <div className="relative bg-[#dde1e8]">
@@ -62,17 +65,16 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
                 className="absolute top-2 right-2 p-1 bg-white rounded-full"
                 onClick={(e) => toggleFavorite(property.id, e)}>
                 <Heart
-                  className={`h-5 w-5 ${
-                    favorites[property.id] ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                  }`}
+                  className={`h-5 w-5 ${favorites[property.id] ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                    }`}
                 />
               </button>
             </div>
             <CardContent className="p-3">
               <div className="font-bold text-lg">
                 {property.listingType === 'buy'
-                  ? `$${property.price.toLocaleString()}`
-                  : `$${property.price}/month`}
+                  ? `€${formatNumberWithCommas(property.price)}`
+                  : `€${formatNumberWithCommas(property.price)}/month`}
               </div>
               <h3 className="text-sm font-medium line-clamp-1">{property.title}</h3>
               <p className="text-xs text-gray-500 mt-1">{property.location}</p>

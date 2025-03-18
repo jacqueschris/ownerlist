@@ -4,10 +4,11 @@ import { useEffect, useRef } from 'react';
 
 interface MapComponentProps {
   position: [number, number];
-  setPosition: (position: [number, number]) => void;
+  setPosition?: (position: [number, number]) => void;
+  draggable?: boolean;
 }
 
-export default function MapComponent({ position, setPosition }: MapComponentProps) {
+export default function MapComponent({ position, setPosition, draggable = true }: MapComponentProps) {
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
 
@@ -45,26 +46,29 @@ export default function MapComponent({ position, setPosition }: MapComponentProp
 
         // Add draggable marker with custom icon
         markerRef.current = L.marker(position, {
-          draggable: true,
+          draggable: draggable,
           icon: customIcon,
         }).addTo(mapRef.current);
 
-        // Update position when marker is dragged
-        markerRef.current.on('dragend', () => {
-          if (markerRef.current) {
-            const newPos = markerRef.current.getLatLng();
-            setPosition([newPos.lat, newPos.lng]);
-          }
-        });
+        if(setPosition){
+          // Update position when marker is dragged
+          markerRef.current.on('dragend', () => {
+            if (markerRef.current) {
+              const newPos = markerRef.current.getLatLng();
+              setPosition([newPos.lat, newPos.lng]);
+            }
+          });
 
-        // Handle map click to move marker
-        mapRef.current.on('click', (e:any) => {
-          if (markerRef.current && mapRef.current) {
-            const newPos = e.latlng;
-            markerRef.current.setLatLng(newPos);
-            setPosition([newPos.lat, newPos.lng]);
-          }
-        });
+          // Handle map click to move marker
+          mapRef.current.on('click', (e:any) => {
+            if (markerRef.current && mapRef.current) {
+              const newPos = e.latlng;
+              markerRef.current.setLatLng(newPos);
+              setPosition([newPos.lat, newPos.lng]);
+            }
+          });
+        }
+        
       }
     }
 
