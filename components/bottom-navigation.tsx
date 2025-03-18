@@ -9,7 +9,7 @@ import { ProfileScreen } from './screens/profile-screen';
 import { isValidElement } from 'react';
 
 const NAV_ITEMS = [
-  { screen: HomeScreen, icon: Home, label: 'Home', component: <HomeScreen /> },
+  { screen: HomeScreen, icon: Home, label: 'Search', component: <HomeScreen /> },
   { screen: FavoritesScreen, icon: Heart, label: 'Favorites', component: <FavoritesScreen /> },
   { screen: ViewingsScreen, icon: Calendar, label: 'Viewings', component: <ViewingsScreen /> },
   { screen: ProfileScreen, icon: User, label: 'Profile', component: <ProfileScreen /> },

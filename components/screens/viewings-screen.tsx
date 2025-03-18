@@ -9,6 +9,7 @@ import { Button } from "../ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
+import Header from "../header"
 
 export function ViewingsScreen() {
   const [hasListings, setHasListings] = useState(true)
@@ -118,9 +119,7 @@ export function ViewingsScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold">Viewing Requests</h1>
-        </div>
+        <Header title="Viewing Requests"></Header>
 
         <div className="p-4">
           <Tabs defaultValue={hasListings ? "incoming" : "outgoing"}>

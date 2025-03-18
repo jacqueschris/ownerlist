@@ -36,6 +36,7 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import axios from 'axios';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import Header from '../header';
 
 // Type for selected image files
 interface SelectedImage {
@@ -80,11 +81,6 @@ export function AddPropertyScreen() {
   const [position, setPosition] = useState<[number, number]>([35.8977, 14.5128]); // Default to Valletta, Malta
   const [mapReady, setMapReady] = useState(false);
 
-  const handleBack = () => {
-    setDisplay(<HomeScreen />);
-    setShowAddPropertyButton(true);
-  };
-
   useEffect(() => {
     // This is needed because Leaflet requires window to be defined
     setMapReady(true);
@@ -102,22 +98,27 @@ export function AddPropertyScreen() {
     };
   }, [webApp]);
 
+  const handleBack = () => {
+    setDisplay(<HomeScreen />);
+    setShowAddPropertyButton(true);
+  };
+
   const getLocationFromCoordinates = async (latitude: number, longitude: number) => {
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
       );
       const data = await response.json();
-  
+
       if (data && data.display_name) {
         return data
-      } 
+      }
       return null
     } catch (err) {
       console.error(err);
     }
   };
-  
+
   useEffect(() => {
     getLocationFromCoordinates(position[0], position[1]).then((data) => {
       if (data) {
@@ -375,12 +376,8 @@ export function AddPropertyScreen() {
 
   return (
     <div className="pb-16">
-      <div className="sticky top-0 z-10 bg-blue p-4 border-b flex items-center">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={handleBack}>
-          <ArrowLeft className="h-5 w-5 text-white" />
-        </Button>
-        <h1 className="text-lg text-white font-bold">Add New Property</h1>
-      </div>
+      <Header showBack={true} title='List New Property'>
+      </Header>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-6">
         <div>

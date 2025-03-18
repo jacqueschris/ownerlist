@@ -3,6 +3,7 @@ import { PropertyGrid } from '../property-grid';
 import { BottomNavigation } from '../bottom-navigation';
 import { useTelegram } from '../telegram-provider';
 import { Property } from '@/types';
+import Header from '../header';
 
 export function FavoritesScreen() {
   const { webApp } = useTelegram();
@@ -13,9 +14,7 @@ export function FavoritesScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold">Favorites</h1>
-        </div>
+        <Header title='Favourites'></Header>
 
         <div className="p-4">
           {favoriteProperties.length > 0 ? (

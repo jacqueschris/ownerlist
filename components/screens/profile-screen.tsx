@@ -7,6 +7,7 @@ import { useTelegram } from "../telegram-provider"
 import { Bell, ChevronRight, Home, User } from "lucide-react"
 import Link from "next/link"
 import { useDataContext } from "@/contexts/Data"
+import Header from "../header"
 
 export function ProfileScreen() {
   const { user } = useTelegram()
@@ -62,9 +63,7 @@ export function ProfileScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold">Profile</h1>
-        </div>
+      <Header title="Profile"></Header>
 
         <div className="p-4">
           <Card className="mb-6">
