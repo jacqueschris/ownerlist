@@ -6,7 +6,7 @@ import { useDataContext } from '@/contexts/Data';
 import { useDisplayContext } from '@/contexts/Display';
 
 const Home: NextPage = () => {
-  const { getUserData, setTGData, getProperties } = useDataContext();
+  const { getUserData, setTGData, getProperties, register } = useDataContext();
 
   const { display } = useDisplayContext();
 
@@ -15,7 +15,7 @@ const Home: NextPage = () => {
       let data: any = parseQueryString(window.Telegram.WebApp.initData);
       if (data && data.user) {
         setTGData(data);
-
+        await register(data, false)
         await getUserData(data.user.id);
         await getProperties(window.Telegram.WebApp.initData);
       }

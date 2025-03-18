@@ -33,6 +33,15 @@ export interface PropertyOwner {
   id: string;
 }
 
+export interface TimeSlotAvailability {
+  start: string;
+  end: string;
+}
+
+export interface DayAvailability {
+  day: string;
+  timeSlots: TimeSlotAvailability[]
+}
 export interface Property {
   id: string;
   title: string;
@@ -49,5 +58,6 @@ export interface Property {
   size: number;
   image: string;
   isFavorite: boolean;
+  availabilitySchedule: DayAvailability[];
   listingType: 'buy' | 'rent';
 }

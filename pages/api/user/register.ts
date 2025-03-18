@@ -33,13 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     let expiryDate = Date.now() + TIER_DAYS_EXPIRY * 24 * 60 * 60 * 1000;
 
-    const userId = userData.user.id;
+    const userId = userData.user?.id;
     const newUserData = {
       id: userId, // Convert ID if stored as ObjectId
       username: req.body.username,
-      name: req.body.name,
+      name: userData.user?.first_name + " " + userData.user?.last_name,
       tier: 'free',
-      swipesUsed: 0,
       tierExpiry: expiryDate,
     };
 

@@ -23,7 +23,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
   async function register(data: any, skipRegister: boolean) {
     if (!skipRegister) {
-      let res = await axios.post('/api/register', {
+      let res = await axios.post('/api/user/register', {
         username: data.user.username,
         token: window.Telegram.WebApp.initData,
         name: data.user.first_name,
@@ -36,8 +36,6 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         });
       }
     }
-
-    setDisplay(<div />);
   }
 
   async function getUserData(id: string) {

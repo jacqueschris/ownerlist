@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     console.log(req.body);
 
-    if (!req.body.token || req.body.token.length == 0) {
+    if (!req.body.token || req.body.token.length === 0) {
       return res.status(400).json({
         error: 'Missing user token',
       });
@@ -42,13 +42,48 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const db = client.db(process.env.DB_NAME); // Replace with your actual DB name
     const propertiesCollection = db.collection('properties');
 
-    const properties = await propertiesCollection.find(filters).toArray();
-    
-    return res.status(200).json({ success: true, properties: properties });
+    // Fetch properties with owner details using $lookup
+    const properties = await propertiesCollection
+      .aggregate([
+        { $match: filters }, // Apply filters
+        {
+          $lookup: {
+            from: 'users', // Collection to join with
+            localField: 'owner', // Field in properties collection
+            foreignField: 'id', // Field in users collection
+            as: 'owner', // Output array field
+          },
+        },
+        { $unwind: { path: "$owner", preserveNullAndEmptyArrays: true } },
+        {$project: {
+          "id": 1,
+          "listingType": 1,
+          "propertyType": 1,
+          "price": 1,
+          "bedrooms": 1,
+          "bathrooms": 1,
+          "size": 1,
+          "location": 1,
+          "position": 1,
+          "description": 1,
+          "amenities": 1,
+          "availabilitySchedule": 1,
+          "images": 1,
+          "owner.id": 1,
+          "owner.name": 1,
+          "owner.username": 1,
+        }}, // Convert array to object, preserve if no match
+      
+      ])
+      .toArray();
+
+      console.log(properties)
+
+    return res.status(200).json({ success: true, properties });
   } catch (err) {
     console.error(err);
     return res.status(400).json({
-      error: 'Failed to save settings',
+      error: 'Failed to retrieve properties',
     });
   }
 }
