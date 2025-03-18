@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, ReactNode } from 'react';
 import { useLocation } from '../hooks/useLocation';
-import { useDisplayContext } from './Display';
 import { DataContextType, Property } from '@/types';
 
 // Create the context with a default value
@@ -18,7 +17,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [distance, setDistance] = useState<number>(30);
   const [properties, setProperties] = useState<Property[]>();
-  const { setDisplay } = useDisplayContext();
+
   let { location } = useLocation();
 
   async function register(data: any, skipRegister: boolean) {
@@ -38,7 +37,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   }
 
-  async function getUserData(id: string) {
+  async function getUserData() {
     setIsLoading(true);
     let res = await axios.post('/api/user', { token: window.Telegram.WebApp.initData });
     setData(res.data.user);
@@ -61,6 +60,25 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const getFavorites = async (token: string, userId: string) => {
+    try {
+      let res = await axios.post(`/api/favorites/list`, { token, userId });
+
+      console.log(res.data);
+      if (res.data.favorites) {
+        let favouritePropertyIds = res.data.favorites.map((favourite: any) => favourite.propertyId);
+        setProperties(properties => (
+          properties?.map(property => ({
+            ...property,
+            isFavorite: favouritePropertyIds.includes(property.id)
+          })) || []
+        ));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -77,6 +95,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         properties,
         setProperties,
         getProperties,
+        getFavorites,
       }}>
       {children}
     </DataContext.Provider>

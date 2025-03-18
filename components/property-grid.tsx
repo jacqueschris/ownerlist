@@ -1,45 +1,63 @@
 'use client';
 
 import type React from 'react';
-import { useState } from 'react';
 import { Card, CardContent } from './ui/card';
-import { Bath, Bed, Heart } from 'lucide-react';
+import { Bath, Bed, Building, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Property } from '@/types';
 import { useDisplayContext } from '@/contexts/Display';
 import { PropertyDetail } from './screens/property-detail';
 import { formatNumberWithCommas } from '@/components/lib/utils';
+import axios from 'axios';
+import { useDataContext } from '@/contexts/Data';
+import EmptyScreen from './screens/empty-screen';
 
 interface PropertyGridProps {
   properties: Property[];
 }
 
 export function PropertyGrid({ properties }: PropertyGridProps) {
-  const [favorites, setFavorites] = useState<Record<string, boolean>>(
-    properties.reduce((acc, property) => {
-      acc[property.id] = property.isFavorite;
-      return acc;
-    }, {} as Record<string, boolean>)
-  );
-
   const { setDisplay } = useDisplayContext();
+  const { data, setProperties } = useDataContext();
 
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+  const toggleFavorite = async (property: Property, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorites((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
 
-  
+    if (property.isFavorite) {
+      try {
+        await axios.post(`/api/favorites/delete`, {
+          propertyId: property.id,
+          userId: data.id,
+          token: window.Telegram.WebApp.initData,
+        });
+      } catch (error) {
+        console.error('Error updating favorite:', error);
+      }
+    } else {
+      try {
+        await axios.post(`/api/favorites/create`, {
+          propertyId: property.id,
+          userId: data.id,
+          token: window.Telegram.WebApp.initData,
+        });
+      } catch (error) {
+        console.error('Error updating favorite:', error);
+      }
+    }
+
+    setProperties((prev) =>
+      prev!.map((p) => (p.id === property.id ? { ...p, isFavorite: !property.isFavorite } : p))
+    );
+  };
 
   if (properties.length === 0) {
     return (
-      <div className="text-center py-10">
-        <p className="text-gray-500">No properties found</p>
-      </div>
+      <EmptyScreen
+        icon={<Building className="h-6 w-6 text-muted-foreground" />}
+        title="No properties available"
+        description="Try changing your filters."
+      />
     );
   }
 
@@ -63,10 +81,11 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
               />
               <button
                 className="absolute top-2 right-2 p-1 bg-white rounded-full"
-                onClick={(e) => toggleFavorite(property.id, e)}>
+                onClick={(e) => toggleFavorite(property, e)}>
                 <Heart
-                  className={`h-5 w-5 ${favorites[property.id] ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                    }`}
+                  className={`h-5 w-5 ${
+                    property.isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                  }`}
                 />
               </button>
             </div>

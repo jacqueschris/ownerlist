@@ -4,9 +4,10 @@ import { useEffect } from 'react';
 import { Layout } from '../components/layout';
 import { useDataContext } from '@/contexts/Data';
 import { useDisplayContext } from '@/contexts/Display';
+import { get } from 'http';
 
 const Home: NextPage = () => {
-  const { getUserData, setTGData, getProperties, register } = useDataContext();
+  const { getUserData, setTGData, getProperties, getFavorites, register } = useDataContext();
 
   const { display } = useDisplayContext();
 
@@ -18,6 +19,7 @@ const Home: NextPage = () => {
         await register(data, false)
         await getUserData(data.user.id);
         await getProperties(window.Telegram.WebApp.initData);
+        await getFavorites(window.Telegram.WebApp.initData, data.user.id);
       }
     })();
   }, [window.Telegram.WebApp.initData]);

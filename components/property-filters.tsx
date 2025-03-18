@@ -8,6 +8,7 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import ButtonToggle from './button-toggle';
+import Header from './header';
 
 interface Filters {
   listingType: 'buy' | 'rent' | 'all';
@@ -85,7 +86,6 @@ export function PropertyFilters({
           <X className="h-5 w-5" />
         </Button>
       </div>
-
       <div className="space-y-6">
         <ButtonToggle
           id="listing-type"

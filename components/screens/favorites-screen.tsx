@@ -1,28 +1,35 @@
 'use client';
 import { PropertyGrid } from '../property-grid';
 import { BottomNavigation } from '../bottom-navigation';
-import { useTelegram } from '../telegram-provider';
-import { Property } from '@/types';
+import { useDataContext } from '@/contexts/Data';
+import { useEffect, useState } from 'react';
 import Header from '../header';
+import { Card, CardContent } from '../ui/card';
+import { Heart } from 'lucide-react';
+import EmptyScreen from './empty-screen';
 
 export function FavoritesScreen() {
-  const { webApp } = useTelegram();
+  const { properties } = useDataContext();
+  const [favorites, setFavorites] = useState(properties!.filter((property) => property.isFavorite));
 
-  // Mock data for favorite properties
-  let favoriteProperties: Property[] = [];
+  useEffect(() => {
+    setFavorites(properties!.filter((property) => property.isFavorite));
+  }, [properties]);
 
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <Header title='Favourites'></Header>
+        <Header title="Favourites" />
 
         <div className="p-4">
-          {favoriteProperties.length > 0 ? (
-            <PropertyGrid properties={favoriteProperties} />
+          {favorites && favorites.length > 0 ? (
+            <PropertyGrid properties={favorites} />
           ) : (
-            <div className="text-center py-10">
-              <p className="text-gray-500">No favorite properties yet</p>
-            </div>
+            <EmptyScreen
+              icon={<Heart className="h-6 w-6 text-muted-foreground" />}
+              title="No favorite properties yet"
+              description="Properties you mark as favorites will appear here"
+            />
           )}
         </div>
       </div>

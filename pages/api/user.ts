@@ -32,6 +32,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       });
     }
 
+    if (!userData.user) {
+      return res.status(400).json({
+        error: 'Missing user details',
+      });
+    }
     // Query MongoDB for the user
     console.log("body", req.body)
     user = await usersCollection.findOne({ id: userData.user.id });

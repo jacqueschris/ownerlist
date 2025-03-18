@@ -6,14 +6,15 @@ export interface DataContextType {
   tgData: any;
   setTGData: React.Dispatch<React.SetStateAction<any>>;
   setData: React.Dispatch<React.SetStateAction<any>>;
-  register: (data: any, skipRegister: boolean) => void;
-  getUserData: (id: string) => any;
+  register: (data: any, skipRegister: boolean) => Promise<void>;
+  getUserData: (id: string) => Promise<any>;
   distance: number;
   setDistance: React.Dispatch<React.SetStateAction<number>>;
   location: any;
   properties?: Property[];
   setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
   getProperties: (token: string) => Promise<void>;
+  getFavorites: (token: string, userId: string) => Promise<void>;
 }
 
 export interface DisplayContextType {
@@ -40,7 +41,7 @@ export interface TimeSlotAvailability {
 
 export interface DayAvailability {
   day: string;
-  timeSlots: TimeSlotAvailability[]
+  timeSlots: TimeSlotAvailability[];
 }
 export interface Property {
   id: string;

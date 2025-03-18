@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react';
 import { AddPropertyScreen } from './add-property-screen';
 import { useDisplayContext } from '@/contexts/Display';
 import { useDataContext } from '@/contexts/Data';
+import Header from '../header';
 
 // Define a type for the filters
 interface Filters {
@@ -133,7 +134,7 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <div className="sticky top-0 z-10 bg-white shadow-sm">
+        <div className="sticky top-0 z-10 bg-blue h-[68.5px] shadow-sm">
           <div className="p-4">
             <SearchBar
               value={searchQuery}
