@@ -18,19 +18,20 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties }: PropertyGridProps) {
   const { setDisplay } = useDisplayContext();
-  const { data, setProperties, favouritesIds } = useDataContext();
+  const { data, setProperties, favouritesIds, removeFavourite, addFavourite } = useDataContext();
 
   const toggleFavorite = async (property: Property, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (property.isFavorite) {
+    if (favouritesIds!.includes(property.id)) {
       try {
         await axios.post(`/api/favorites/delete`, {
           propertyId: property.id,
           userId: data.id,
           token: window.Telegram.WebApp.initData,
         });
+        removeFavourite(property.id)
       } catch (error) {
         console.error('Error updating favorite:', error);
       }
@@ -41,6 +42,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
           userId: data.id,
           token: window.Telegram.WebApp.initData,
         });
+        addFavourite(property.id)
       } catch (error) {
         console.error('Error updating favorite:', error);
       }

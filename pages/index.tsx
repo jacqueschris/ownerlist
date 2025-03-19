@@ -18,8 +18,8 @@ const Home: NextPage = () => {
         setTGData(data);
         await register(data, false)
         await getUserData(data.user.id);
-        await getProperties(window.Telegram.WebApp.initData);
         await getFavorites(window.Telegram.WebApp.initData, data.user.id);
+        await getProperties(window.Telegram.WebApp.initData);
       }
     })();
   }, [window.Telegram.WebApp.initData]);

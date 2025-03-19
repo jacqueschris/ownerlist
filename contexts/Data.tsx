@@ -80,6 +80,19 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const removeFavourite = async (propertyId: string) => {
+    let newFavourites = favourites?.filter((property: any) => property.id != propertyId)
+    setFavorites(newFavourites)
+    setFavoritesIds(newFavourites?.map((property: any) => property.id))
+  }
+
+  const addFavourite = async (propertyId: string) => {
+    let newFavourites = [...favourites!]
+    newFavourites.push(properties?.find((property: any) => property.id == propertyId)!)
+    setFavorites(newFavourites)
+    setFavoritesIds(newFavourites?.map((property: any) => property.id))
+  }
+
   return (
     <DataContext.Provider
       value={{
@@ -98,7 +111,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getProperties,
         getFavorites,
         favourites,
-        favouritesIds
+        favouritesIds,
+        removeFavourite,
+        addFavourite
       }}>
       {children}
     </DataContext.Provider>

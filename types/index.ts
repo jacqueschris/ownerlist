@@ -17,6 +17,8 @@ export interface DataContextType {
   setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
   getProperties: (token: string) => Promise<void>;
   getFavorites: (token: string, userId: string) => Promise<void>;
+  removeFavourite: (propertyId: string) => Promise<void>;
+  addFavourite: (propertyId: string) => Promise<void>;
 }
 
 export interface DisplayContextType {
