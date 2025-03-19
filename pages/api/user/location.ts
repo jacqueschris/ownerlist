@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     });
   }
 
-  if (!req.body.location || !userData.user.id) {
+  if (!req.body.location || !userData.user?.id) {
     return res.status(400).json({
       error: 'Missing user details or location',
     });
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     // Update the user's location in the collection
     const result = await usersCollection.updateOne(
-      { id: userData.user.id }, // Finding the user by their ID
+      { id: userData.user?.id }, // Finding the user by their ID
       { $set: { location: location, username: req.body.username } } // Setting the location field
     );
 

@@ -82,6 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       filters.amenities = { $all: amenities };
     }
 
+    filters.active = true
+
     console.log('Applied filters:', filters);
 
     // Connect to MongoDB
@@ -105,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         {
           $project: {
             id: 1,
+            active: 1,
             listingType: 1,
             propertyType: 1,
             title: 1,

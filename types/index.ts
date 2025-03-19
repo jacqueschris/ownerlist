@@ -12,6 +12,7 @@ export interface DataContextType {
   setDistance: React.Dispatch<React.SetStateAction<number>>;
   location: any;
   properties?: Property[];
+  listings?: Property[];
   favourites?: Property[];
   favouritesIds?: string[];
   setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
@@ -22,6 +23,7 @@ export interface DataContextType {
   updateProperty: (newProperty: Property) => Promise<void>;
   deleteProperty: (propertyId: string) => Promise<void>;
   getViewings: (token: string, userId: string) => Promise<void>;
+  getListings: (token: string) => Promise<void>;
   incomingViewingRequests: IncomingViewing[] | undefined;
   setIncomingViewingRequests: React.Dispatch<React.SetStateAction<IncomingViewing[] | undefined>>;
   outgoingViewingRequests: OutgoingViewing[] | undefined;
@@ -62,6 +64,7 @@ export interface CarSpace {
 
 export interface Property {
   id: string;
+  active: boolean;
   title: string;
   price: number;
   location: string;

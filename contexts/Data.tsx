@@ -20,6 +20,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [distance, setDistance] = useState<number>(30);
   const [properties, setProperties] = useState<Property[]>();
   const [favourites, setFavorites] = useState<Property[]>();
+  const [listings, setListings] = useState<Property[]>();
   const [favouritesIds, setFavoritesIds] = useState<string[]>();
   const [incomingViewingRequests, setIncomingViewingRequests] = useState<IncomingViewing[]>();
   const [outgoingViewingRequests, setOutgoingViewingRequests] = useState<OutgoingViewing[]>();
@@ -99,15 +100,40 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }
 
   const updateProperty = async (newProperty: Property) => {
-    let index = properties?.findIndex((property: any) => property.id == newProperty.id)
+    if(properties){
+      let index = properties?.findIndex((property: any) => property.id == newProperty.id)
 
-    if(index != -1){
-      let newProperties = [...properties!]
-      let oldOwner = newProperties[index!].owner
-      newProperty.owner = oldOwner
-      newProperties[index!] = newProperty
-      setProperties(newProperties)
+      if(index != -1){
+        let newProperties = [...properties!]
+        let oldOwner = newProperties[index!].owner
+        newProperty.owner = oldOwner
+        newProperties[index!] = newProperty
+        setProperties(newProperties)
+      }
     }
+    if(favourites){
+      let index = favourites?.findIndex((property: any) => property.id == newProperty.id)
+
+      if(index != -1){
+        let newFavourites = [...favourites!]
+        let oldOwner = newFavourites[index!].owner
+        newProperty.owner = oldOwner
+        newFavourites[index!] = newProperty
+        setFavorites(newFavourites)
+      }
+    }
+    if(listings){
+      let index = listings?.findIndex((property: any) => property.id == newProperty.id)
+
+      if(index != -1){
+        let newListings = [...listings!]
+        let oldOwner = newListings[index!].owner
+        newProperty.owner = oldOwner
+        newListings[index!] = newProperty
+        setListings(newListings)
+      }
+    }
+  
   }
 
   const deleteProperty = async (propertyId: string) => {
@@ -156,6 +182,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const getListings = async (token: string) => {
+    try {
+      let res = await axios.get(`/api/user/listings`, {
+        params: { token },
+      });
+
+      setListings(res.data.listings)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -183,7 +221,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         incomingViewingRequests,
         setIncomingViewingRequests,
         outgoingViewingRequests, 
-        setOutgoingViewingRequests
+        setOutgoingViewingRequests,
+        listings,
+        getListings
       }}>
       {children}
     </DataContext.Provider>

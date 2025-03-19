@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     // Fetch favorites with owner details using $lookup
     const userId = Number(req.body.userId);
-    const favorites = await favoritesCollection
+    let favorites = await favoritesCollection
     
       .aggregate([{ $match: { userId } }, {
         $lookup: {
@@ -59,6 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       {$project: {
         "_id": 0,
         "property.id": 1,
+        "property.active": 1,
         "property.listingType": 1,
         "property.propertyType": 1,
         "property.price": 1,
@@ -77,6 +78,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       }}])
       .toArray();
 
+
+      favorites = favorites.filter((favorite: any) => favorite.property.active);
       
     return res.status(200).json({ success: true, favorites });
   } catch (err) {

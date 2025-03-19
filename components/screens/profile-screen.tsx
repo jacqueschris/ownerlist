@@ -3,39 +3,19 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { BottomNavigation } from "../bottom-navigation"
-import { useTelegram } from "../telegram-provider"
 import { Bell, ChevronRight, Home, User } from "lucide-react"
 import Link from "next/link"
 import { useDataContext } from "@/contexts/Data"
 import Header from "../header"
+import { AddPropertyScreen } from "./add-property-screen"
+import { Property } from "@/types"
+import { useDisplayContext } from "@/contexts/Display"
+import { Switch } from "../ui/switch"
+import axios from "axios"
 
 export function ProfileScreen() {
-  const { user } = useTelegram()
-  const {tgData} = useDataContext();
-
-  // Mock data for user's listings
-  const myListings = [
-    {
-      id: "101",
-      title: "Modern Studio in City Center",
-      price: 1200,
-      location: "Manhattan, New York",
-      type: "Studio",
-      image: "/office.png",
-      listingType: "rent",
-      status: "active",
-    },
-    {
-      id: "102",
-      title: "Family House with Garden",
-      price: 350000,
-      location: "Queens, New York",
-      type: "House",
-      image: "/house.png",
-      listingType: "buy",
-      status: "active",
-    },
-  ]
+  const {setDisplay} = useDisplayContext();
+  const {tgData, listings, updateProperty} = useDataContext();
 
   // Mock data for saved searches
   const savedSearches = [
@@ -59,6 +39,32 @@ export function ProfileScreen() {
       },
     },
   ]
+
+  
+  const addNewProperty = () => {
+    setDisplay(<AddPropertyScreen />)
+  }
+  const goToProperty = (property: Property) => {
+    setDisplay(<AddPropertyScreen propertyData={property} />)
+  }
+
+  const handleListingVisibilityChange = async (property: Property) => {
+    try{
+      let response = await axios.post('api/property/visibility', {
+        active: !property.active,
+        token: window.Telegram.WebApp.initData,
+        id: property.id,
+      });
+
+      if (response.status === 200) {
+        let newProperty = property
+        newProperty.active = !property.active
+        updateProperty(newProperty)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -89,17 +95,16 @@ export function ProfileScreen() {
             </TabsList>
 
             <TabsContent value="listings" className="space-y-4">
-              {myListings.length > 0 ? (
-                myListings.map((listing) => (
-                  <Link href={`/property/${listing.id}`} key={listing.id}>
-                    <Card>
+              {listings && listings.length > 0 ? (
+                listings.map((listing, index) => (
+                    <Card key={index}>
                       <CardContent className="p-0">
                         <div className="flex items-center p-4">
-                          <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+                          <div className="w-[100px] h-[100px] rounded-md overflow-hidden flex-shrink-0">
                             <img
-                              src={listing.image || "/placeholder.svg"}
+                              src={`${listing.propertyType.toLowerCase()}.png`}
                               alt={listing.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain"
                             />
                           </div>
                           <div className="ml-4 flex-1">
@@ -111,38 +116,28 @@ export function ProfileScreen() {
                                   ? `$${listing.price.toLocaleString()}`
                                   : `$${listing.price}/month`}
                               </span>
-                              <span
-                                className={`text-xs px-2 py-1 rounded-full ${
-                                  listing.status === "active"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-gray-100 text-gray-800"
-                                }`}
-                              >
-                                {listing.status === "active" ? "Active" : "On Hold"}
-                              </span>
+                            </div>
+                            <div className="flex mt-3">
+                              <label className="mr-3">Active: </label>
+                            <Switch checked={listing.active} onCheckedChange={() => handleListingVisibilityChange(listing)}></Switch>
+
                             </div>
                           </div>
-                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                          <ChevronRight className="h-5 w-5 text-gray-400" onClick={() => goToProperty(listing)} />
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
                 ))
               ) : (
                 <div className="text-center py-10">
                   <Home className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">You haven't added any listings yet</p>
-                  <Button className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]" asChild>
-                    <Link href="/add-property">Add Property</Link>
-                  </Button>
                 </div>
               )}
 
-              {myListings.length > 0 && (
-                <Button className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]" asChild>
-                  <Link href="/add-property">Add New Property</Link>
-                </Button>
-              )}
+              <Button className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={addNewProperty}>
+                Add New Property
+              </Button>
             </TabsContent>
 
             <TabsContent value="searches" className="space-y-4">

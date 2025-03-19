@@ -61,6 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
     propertyData.images = imagePaths;
     propertyData.owner = Number(userData.user!.id);
+    propertyData.active = true;
     propertyData.id = uuidv4();
 
     // Validate property data
