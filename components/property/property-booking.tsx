@@ -53,7 +53,7 @@ export function PropertyBooking({
                 <Button
                   key={index}
                   variant={selectedTimeSlot === slot ? "default" : "outline"}
-                  className={`text-sm ${selectedTimeSlot === slot ? "bg-blue text-yellow hover:text-white" : ""}`}
+                  className={`text-sm ${selectedTimeSlot === slot ? "bg-blue text-yellow hover:bg-blue hover:text-white" : ""}`}
                   onClick={() => setSelectedTimeSlot(slot)}
                 >
                   {slot.start} - {slot.end}
