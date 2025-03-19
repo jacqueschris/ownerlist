@@ -38,8 +38,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Property } from '@/types';
+import { set } from 'mongoose';
 
 // Type for selected image files
 interface SelectedImage {
@@ -123,7 +123,8 @@ interface AddPropertyScreenProps {
 
 export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   const { setDisplay, setShowAddPropertyButton } = useDisplayContext();
-  const { isLoading, updateProperty, properties, deleteProperty, newListing, data } = useDataContext();
+  const { isLoading, updateProperty, properties, deleteProperty, newListing, data } =
+    useDataContext();
   const { webApp } = useTelegram();
   const [listingType, setListingType] = useState<'buy' | 'rent'>('buy');
   const [propertyType, setPropertyType] = useState('');
@@ -173,7 +174,9 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   // Populate form with existing data if in edit mode
   useEffect(() => {
     if (propertyData) {
-      propertyData = properties ? properties?.find((property: any) => property.id == propertyData?.id)! : propertyData;
+      propertyData = properties
+        ? properties?.find((property: any) => property.id == propertyData?.id)!
+        : propertyData;
 
       setListingType(propertyData.listingType);
       setPropertyType(propertyData.propertyType);
@@ -213,6 +216,12 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
       }
     };
   }, [webApp]);
+
+  useEffect(() => {
+    if (propertyType === 'garage') {
+      setNewCarSpaceType('garage');
+    }
+  }, [propertyType]);
 
   const handleBack = () => {
     setDisplay(<HomeScreen />);
@@ -625,14 +634,14 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
       // Continue with form submission
       if (isEditMode) {
         await updateProperty(response.data.property);
-      } else{
-        let newProperty = response.data.property
+      } else {
+        let newProperty = response.data.property;
         newProperty.owner = {
           username: data.username,
           id: data.id,
           name: data.name,
-        }
-        await newListing(response.data.property)
+        };
+        await newListing(response.data.property);
       }
       setDisplay(<HomeScreen />);
       setShowAddPropertyButton(true);
@@ -680,6 +689,7 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                   <SelectItem value="villa">Villa</SelectItem>
                   <SelectItem value="office">Office</SelectItem>
                   <SelectItem value="studio">Studio</SelectItem>
+                  <SelectItem value="garage">Garage</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -714,39 +724,59 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
         <div>
           <h2 className="text-lg font-semibold mb-4">Property Details</h2>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="bedrooms">Bedrooms</Label>
-              <Select value={bedrooms} onValueChange={setBedrooms}>
-                <SelectTrigger id="bedrooms" className="mt-1">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, '6+'].map((num) => (
-                    <SelectItem key={num} value={String(num)}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {propertyType === 'garage' && (
+            <div className="mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="capacity">Capacity (number of cars)</Label>
+                <Input
+                  type="number"
+                  id="capacity"
+                  value={newCarSpaceCapacity}
+                  onChange={(e) => setNewCarSpaceCapacity(Number(e.target.value))}
+                  min={1}
+                  max={5}
+                  placeholder="Select capacity"
+                  className="w-full"
+                />
+              </div>
             </div>
+          )}
 
-            <div>
-              <Label htmlFor="bathrooms">Bathrooms</Label>
-              <Select value={bathrooms} onValueChange={setBathrooms}>
-                <SelectTrigger id="bathrooms" className="mt-1">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, '5+'].map((num) => (
-                    <SelectItem key={num} value={String(num)}>
-                      {num}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {propertyType != 'garage' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bedrooms">Bedrooms</Label>
+                <Select value={bedrooms} onValueChange={setBedrooms}>
+                  <SelectTrigger id="bedrooms" className="mt-1">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5, '6+'].map((num) => (
+                      <SelectItem key={num} value={String(num)}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="bathrooms">Bathrooms</Label>
+                <Select value={bathrooms} onValueChange={setBathrooms}>
+                  <SelectTrigger id="bathrooms" className="mt-1">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, '5+'].map((num) => (
+                      <SelectItem key={num} value={String(num)}>
+                        {num}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-4">
             <Label htmlFor="size">Size (m²)</Label>
@@ -902,125 +932,125 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
           </div>
         </div>
 
-        <div className="mt-4">
-          <div className="flex justify-between items-center mb-2">
-            <Label>Car Spaces</Label>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-                  disabled={carSpaces.length >= 2 || isLoading}>
-                  <Plus className="h-4 w-4 mr-1" /> Add Car Space
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Add Car Space</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Select the type of car space and its capacity.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <div className="py-4 space-y-4">
-                  <div className="space-y-2">
-                    <ButtonToggle
-                      id="type"
-                      label="Type"
-                      value={newCarSpaceType}
-                      onChange={(value) => setNewCarSpaceType(value as 'garage' | 'carspace')}
-                      buttons={[
-                        { value: 'garage', label: 'Garage' },
-                        { value: 'carspace', label: 'Car Space' },
-                      ]}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="capacity">Capacity (number of cars)</Label>
-                    <Select
-                      value={String(newCarSpaceCapacity)}
-                      onValueChange={(value) => setNewCarSpaceCapacity(Number(value))}>
-                      <SelectTrigger id="capacity">
-                        <SelectValue placeholder="Select capacity" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5].map((num) => (
-                          <SelectItem key={num} value={String(num)}>
-                            {num}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={addCarSpace}
-                    className="bg-[#F8F32B] text-black hover:bg-[#e9e426]">
-                    Add
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-
-          {carSpaces.length === 0 ? (
-            <div className="text-center py-4 border rounded-md bg-gray-50">
-              <p className="text-gray-500">No car spaces added yet</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {carSpaces.map((space, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-gray-50 p-3 rounded-md border-2">
-                  <div>
-                    <span className="font-medium capitalize">{space.type}</span>
-                    <span className="ml-2 text-gray-500">
-                      {space.capacity} {space.capacity === 1 ? 'car' : 'cars'}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeCarSpace(index)}
-                    className="h-8 w-8 p-0"
-                    disabled={isLoading}>
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Remove car space</span>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-4">Amenities</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              'Balcony',
-              'Pool',
-              'Parking',
-              'Garden',
-              'Elevator',
-              'Air Conditioning',
-              'Furnished',
-              'Pet Friendly',
-            ].map((amenity) => (
-              <div key={amenity} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`amenity-${amenity}`}
-                  checked={amenities.includes(amenity)}
-                  onCheckedChange={() => toggleAmenity(amenity)}
-                />
-                <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
+        {propertyType != 'garage' && (
+          <>
+            <div className="mt-4">
+              <div className="flex justify-between items-center mb-2">
+                <Label>Car Spaces</Label>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                      disabled={carSpaces.length >= 2 || isLoading}>
+                      <Plus className="h-4 w-4 mr-1" /> Add Car Space
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Add Car Space</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Select the type of car space and its capacity.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="py-4 space-y-4">
+                      <div className="space-y-2">
+                        <ButtonToggle
+                          id="type"
+                          label="Type"
+                          value={newCarSpaceType}
+                          onChange={(value) => setNewCarSpaceType(value as 'garage' | 'carspace')}
+                          buttons={[
+                            { value: 'garage', label: 'Garage' },
+                            { value: 'carspace', label: 'Car Space' },
+                          ]}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="capacity">Capacity (number of cars)</Label>
+                        <Input
+                          type="number"
+                          id="capacity"
+                          value={newCarSpaceCapacity}
+                          onChange={(e) => setNewCarSpaceCapacity(Number(e.target.value))}
+                          min={1}
+                          max={5}
+                          placeholder="Select capacity"
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={addCarSpace}
+                        className="bg-[#F8F32B] text-black hover:bg-[#e9e426]">
+                        Add
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-            ))}
-          </div>
-        </div>
+
+              {carSpaces.length === 0 ? (
+                <div className="text-center py-4 border rounded-md bg-gray-50">
+                  <p className="text-gray-500">No car spaces added yet</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {carSpaces.map((space, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-gray-50 p-3 rounded-md border-2">
+                      <div>
+                        <span className="font-medium capitalize">{space.type}</span>
+                        <span className="ml-2 text-gray-500">
+                          {space.capacity} {space.capacity === 1 ? 'car' : 'cars'}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCarSpace(index)}
+                        className="h-8 w-8 p-0"
+                        disabled={isLoading}>
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Remove car space</span>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Amenities</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  'Balcony',
+                  'Pool',
+                  'Parking',
+                  'Garden',
+                  'Elevator',
+                  'Air Conditioning',
+                  'Furnished',
+                  'Pet Friendly',
+                ].map((amenity) => (
+                  <div key={amenity} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`amenity-${amenity}`}
+                      checked={amenities.includes(amenity)}
+                      onCheckedChange={() => toggleAmenity(amenity)}
+                    />
+                    <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         <div>
           <h2 className="text-lg font-semibold mb-4">Property Images</h2>

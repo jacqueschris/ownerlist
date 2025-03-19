@@ -29,8 +29,7 @@ export function OutgoingViewingsList() {
         setOutgoingViewingRequests(outgoingViewingRequests!.filter((req) => req.viewing.id !== id));
         toast({
           title: 'Viewing Request Deleted Successfully',
-          description:
-            'Your viewing request has been deleted.',
+          description: 'Your viewing request has been deleted.',
           variant: 'destructive',
         });
       }
@@ -54,15 +53,19 @@ export function OutgoingViewingsList() {
                       {`${request.targetUser.name
                         .split(' ')
                         .map((item: any) => item[0])
-                        .join('')}`}
+                        .join('')
+                        .slice(0, 3)}`}
                     </AvatarFallback>
                   </Avatar>
                 </div>
 
                 <div className="ml-4 flex-1">
-                  <div className="flex justify-between">
+                  <div className="flex items-start justify-between">
                     <h3 className="font-medium">{request.targetUser.name}</h3>
-                    <ViewingStatusBadge status={request.viewing.status} />
+                    <ViewingStatusBadge
+                      status={request.viewing.status}
+                      className="flex-shrink-0 mt-0.5"
+                    />
                   </div>
                   <p className="text-sm text-gray-500 mt-1">{request.viewing.property.title}</p>
                   <div className="flex items-center mt-1">
@@ -81,9 +84,9 @@ export function OutgoingViewingsList() {
                     <Button
                       size="sm"
                       variant="destructive"
+                      className="flex items-center"
                       onClick={() => onDelete(request.viewing.id)}>
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
