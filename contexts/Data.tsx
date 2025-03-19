@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createContext, useState, useContext, ReactNode } from 'react';
 import { useLocation } from '../hooks/useLocation';
-import { DataContextType, Property } from '@/types';
+import { DataContextType, Filters, Property } from '@/types';
 
 // Create the context with a default value
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -52,9 +52,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return res.data.invoiceLink;
   }
 
-  const getProperties = async (token: string) => {
+  const getProperties = async (token: string, filters: Filters) => {
     try {
-      let res = await axios.post(`/api/property/list`, { token });
+      let res = await axios.post(`/api/property/list`, { token, filters });
       setProperties(res.data.properties);
     } catch (error) {
       console.error(error);

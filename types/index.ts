@@ -15,7 +15,7 @@ export interface DataContextType {
   favourites?: Property[];
   favouritesIds?: string[];
   setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
-  getProperties: (token: string) => Promise<void>;
+  getProperties: (token: string, filters: Filters) => Promise<void>;
   getFavorites: (token: string, userId: string) => Promise<void>;
   removeFavourite: (propertyId: string) => Promise<void>;
   addFavourite: (propertyId: string) => Promise<void>;
@@ -73,4 +73,15 @@ export interface Property {
   carSpaces: CarSpace[];
   availabilitySchedule: DayAvailability[];
   listingType: 'buy' | 'rent';
+}
+
+// Define a type for the filters
+export interface Filters {
+  listingType: 'buy' | 'rent' | 'all';
+  priceRange: [number, number];
+  propertyType: string;
+  bedrooms: string;
+  bathrooms: string;
+  size: [number, number];
+  amenities: string[];
 }

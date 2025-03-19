@@ -8,23 +8,14 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import ButtonToggle from './button-toggle';
-import Header from './header';
-
-interface Filters {
-  listingType: 'buy' | 'rent' | 'all';
-  priceRange: [number, number];
-  propertyType: string;
-  bedrooms: string;
-  bathrooms: string;
-  size: [number, number];
-  amenities: string[];
-}
+import { Filters } from '@/types';
 
 interface PropertyFiltersProps {
   onClose: () => void;
   onApply: (filters: Filters) => void;
   onReset: () => void;
   initialFilters: Filters;
+  searchMade: boolean;
 }
 
 export function PropertyFilters({
@@ -32,6 +23,7 @@ export function PropertyFilters({
   onApply,
   onReset,
   initialFilters,
+  searchMade,
 }: PropertyFiltersProps) {
   const [listingType, setListingType] = useState<'buy' | 'rent' | 'all'>(
     initialFilters.listingType
@@ -82,9 +74,11 @@ export function PropertyFilters({
     <div className="bg-white p-4 border-t border-gray-200 z-100">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
+        {searchMade && (
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-5 w-5" />
+          </Button>
+        )}
       </div>
       <div className="space-y-6">
         <ButtonToggle

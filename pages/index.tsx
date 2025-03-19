@@ -19,7 +19,7 @@ const Home: NextPage = () => {
         await register(data, false)
         await getUserData(data.user.id);
         await getFavorites(window.Telegram.WebApp.initData, data.user.id);
-        await getProperties(window.Telegram.WebApp.initData);
+        //await getProperties(window.Telegram.WebApp.initData);
       }
     })();
   }, [window.Telegram.WebApp.initData]);

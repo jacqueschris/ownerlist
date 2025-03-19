@@ -10,24 +10,15 @@ import { Plus } from 'lucide-react';
 import { AddPropertyScreen } from './add-property-screen';
 import { useDisplayContext } from '@/contexts/Display';
 import { useDataContext } from '@/contexts/Data';
-import Header from '../header';
-
-// Define a type for the filters
-interface Filters {
-  listingType: 'buy' | 'rent' | 'all';
-  priceRange: [number, number];
-  propertyType: string;
-  bedrooms: string;
-  bathrooms: string;
-  size: [number, number];
-  amenities: string[];
-}
+import { Filters } from '@/types';
 
 export function HomeScreen() {
   const { setDisplay, showAddPropertyButton, setShowAddPropertyButton } = useDisplayContext();
-  const { properties } = useDataContext();
+  const { properties, getProperties } = useDataContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(true);
+  const [searchMade, setSearchMade] = useState(false);
+  const [propertiesLoading, setPropertiesLoading] = useState(false);
 
   // Initialize filters with default values
   const [filters, setFilters] = useState<Filters>({
@@ -40,74 +31,77 @@ export function HomeScreen() {
     amenities: [],
   });
 
-  if (!properties) {
-    return <div>Loading...</div>;
-  }
-  // Apply all filters to properties
-  const filteredProperties = properties!.filter((property) => {
-    // Search query filter
-    if (searchQuery && !property.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
+  // // Apply all filters to properties
+  // const filteredProperties = properties!.filter((property) => {
+  //   // Search query filter
+  //   if (searchQuery && !property.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+  //     return false;
+  //   }
 
-    // Listing type filter
-    if (filters.listingType !== 'all' && property.listingType !== filters.listingType) {
-      return false;
-    }
+  //   // Listing type filter
+  //   if (filters.listingType !== 'all' && property.listingType !== filters.listingType) {
+  //     return false;
+  //   }
 
-    // Price range filter
-    if (property.price < filters.priceRange[0] || property.price > filters.priceRange[1]) {
-      return false;
-    }
+  //   // Price range filter
+  //   if (property.price < filters.priceRange[0] || property.price > filters.priceRange[1]) {
+  //     return false;
+  //   }
 
-    // Property type filter
-    if (
-      filters.propertyType &&
-      property.propertyType.toLowerCase() !== filters.propertyType.toLowerCase()
-    ) {
-      return false;
-    }
+  //   // Property type filter
+  //   if (
+  //     filters.propertyType &&
+  //     property.propertyType.toLowerCase() !== filters.propertyType.toLowerCase()
+  //   ) {
+  //     return false;
+  //   }
 
-    // Bedrooms filter
-    if (filters.bedrooms && property.bedrooms < Number.parseInt(filters.bedrooms)) {
-      return false;
-    }
+  //   // Bedrooms filter
+  //   if (filters.bedrooms && property.bedrooms < Number.parseInt(filters.bedrooms)) {
+  //     return false;
+  //   }
 
-    // Bathrooms filter
-    if (filters.bathrooms && property.bathrooms < Number.parseInt(filters.bathrooms)) {
-      return false;
-    }
+  //   // Bathrooms filter
+  //   if (filters.bathrooms && property.bathrooms < Number.parseInt(filters.bathrooms)) {
+  //     return false;
+  //   }
 
-    // Size filter
-    if (property.size < filters.size[0] || property.size > filters.size[1]) {
-      return false;
-    }
+  //   // Size filter
+  //   if (property.size < filters.size[0] || property.size > filters.size[1]) {
+  //     return false;
+  //   }
 
-    // For amenities, we would need to add amenities to the Property type
-    // This is a placeholder for when that data is available
-    // if (filters.amenities.length > 0) {
-    //   // Check if property has all selected amenities
-    //   for (const amenity of filters.amenities) {
-    //     if (!property.amenities?.includes(amenity)) {
-    //       return false;
-    //     }
-    //   }
-    // }
+  //   // For amenities, we would need to add amenities to the Property type
+  //   // This is a placeholder for when that data is available
+  //   // if (filters.amenities.length > 0) {
+  //   //   // Check if property has all selected amenities
+  //   //   for (const amenity of filters.amenities) {
+  //   //     if (!property.amenities?.includes(amenity)) {
+  //   //       return false;
+  //   //     }
+  //   //   }
+  //   // }
 
-    return true;
-  });
-
-  console.log(filteredProperties);
+  //   return true;
+  // });
 
   const handleAddProperty = () => {
     setDisplay(<AddPropertyScreen />);
     setShowAddPropertyButton(false);
   };
 
-  const handleApplyFilters = (newFilters: Filters) => {
+  const handleApplyFilters = async (newFilters: Filters) => {
     setFilters(newFilters);
     setFiltersVisible(false);
     setShowAddPropertyButton(true);
+    setSearchMade(true);
+    setPropertiesLoading(true);
+
+    try {
+      await getProperties(window.Telegram.WebApp.initData, filters);
+    } catch {
+      console.error();
+    }
   };
 
   const handleResetFilters = () => {
@@ -131,6 +125,7 @@ export function HomeScreen() {
     setFiltersVisible(!filtersVisible);
     setShowAddPropertyButton(!showAddPropertyButton);
   };
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
@@ -147,13 +142,14 @@ export function HomeScreen() {
               onClose={handleCloseFilters}
               onApply={handleApplyFilters}
               onReset={handleResetFilters}
+              searchMade={searchMade}
               initialFilters={filters}
             />
           )}
         </div>
         {!filtersVisible && (
           <div className="p-4">
-            <PropertyGrid properties={filteredProperties} />
+            <PropertyGrid properties={properties!} />
           </div>
         )}
       </div>
