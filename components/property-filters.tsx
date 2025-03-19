@@ -72,14 +72,16 @@ export function PropertyFilters({
 
   return (
     <div className="bg-white p-4 border-t border-gray-200 z-100">
+       {searchMade && (
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
-        {searchMade && (
+       
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-5 w-5" />
           </Button>
-        )}
+       
       </div>
+       )}
       <div className="space-y-6">
         <ButtonToggle
           id="listing-type"
@@ -198,13 +200,16 @@ export function PropertyFilters({
         </div>
 
         <div className="flex space-x-4 pt-4">
-          <Button variant="outline" className="flex-1" onClick={handleReset}>
-            Reset
-          </Button>
+          {searchMade &&
+            <Button variant="outline" className="flex-1" onClick={handleReset}>
+              Reset
+            </Button>
+          }
+
           <Button
             className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
             onClick={handleApply}>
-            Apply Filters
+            {searchMade ? "Apply Filters" : "Search for properties"}
           </Button>
         </div>
       </div>

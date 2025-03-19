@@ -11,6 +11,7 @@ import { AddPropertyScreen } from './add-property-screen';
 import { useDisplayContext } from '@/contexts/Display';
 import { useDataContext } from '@/contexts/Data';
 import { Filters } from '@/types';
+import Header from '../header';
 
 export function HomeScreen() {
   const { setDisplay, showAddPropertyButton, setShowAddPropertyButton } = useDisplayContext();
@@ -129,14 +130,17 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
+        
         <div className="sticky top-0 z-10 bg-blue shadow-sm">
+        { searchMade ?  
           <div className="p-4">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
               onFilterClick={handleFilterClick}
             />
-          </div>
+          </div> : <Header title="Search for properties" />
+        }
           {filtersVisible && (
             <PropertyFilters
               onClose={handleCloseFilters}
@@ -146,7 +150,7 @@ export function HomeScreen() {
               initialFilters={filters}
             />
           )}
-        </div>
+        </div> 
         {!filtersVisible && (
           <div className="p-4">
             <PropertyGrid properties={properties!} />

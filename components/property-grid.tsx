@@ -53,7 +53,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
     );
   };
 
-  if (properties.length === 0) {
+  if (properties && properties.length === 0) {
     return (
       <EmptyScreen
         icon={<Building className="h-6 w-6 text-muted-foreground" />}
@@ -65,7 +65,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {properties.map((property) => (
+      {properties && properties.map((property) => (
         <div
           className=" cursor-pointer"
           key={property.id}
