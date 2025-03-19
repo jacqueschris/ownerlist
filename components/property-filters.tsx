@@ -8,7 +8,7 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import ButtonToggle from './button-toggle';
-import { Filters } from '@/types';
+import { Filters } from '@/types/index';
 import { LocalitiesSelect } from './localities-select';
 import { useDataContext } from '@/contexts/Data';
 

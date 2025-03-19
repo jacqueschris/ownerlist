@@ -7,7 +7,7 @@ import { useDisplayContext } from '@/contexts/Display';
 import { get } from 'http';
 
 const Home: NextPage = () => {
-  const { getUserData, setTGData, getProperties, getFavorites, register } = useDataContext();
+  const { getUserData, setTGData, getProperties, getFavorites, register, getViewings } = useDataContext();
 
   const { display } = useDisplayContext();
 
@@ -19,6 +19,8 @@ const Home: NextPage = () => {
         await register(data, false)
         await getUserData(data.user.id);
         await getFavorites(window.Telegram.WebApp.initData, data.user.id);
+        await getViewings(window.Telegram.WebApp.initData, data.user.id);
+
         //await getProperties(window.Telegram.WebApp.initData);
       }
     })();

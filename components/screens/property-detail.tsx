@@ -1,12 +1,12 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { Button } from "../ui/button"
-import { Card, CardContent } from "../ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import { Calendar } from "../ui/calendar"
-import { useTelegram } from "../telegram-provider"
+'use client';
+import { toast } from '@/components/ui/use-toast';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Calendar } from '../ui/calendar';
+import { useTelegram } from '../telegram-provider';
 import {
   ArrowLeft,
   Heart,
@@ -18,70 +18,115 @@ import {
   CalendarIcon,
   MessageCircle,
   ExternalLink,
-} from "lucide-react"
-import { HomeScreen } from "./home-screen"
-import { useDisplayContext } from "@/contexts/Display"
-import { formatNumberWithCommas } from "@/components/lib/utils"
-import MapWrapper from "../ui/map-wrapper"
-import { Badge } from "../ui/badge"
-import { Property } from "@/types"
+} from 'lucide-react';
+import { HomeScreen } from './home-screen';
+import { useDisplayContext } from '@/contexts/Display';
+import { formatNumberWithCommas } from '@/components/lib/utils';
+import MapWrapper from '../ui/map-wrapper';
+import { Badge } from '../ui/badge';
+import { Property } from '@/types/index';
+import axios, { AxiosError } from 'axios';
 
 interface PropertyDetailProps {
-  property: Property
+  property: Property;
 }
 
 export function PropertyDetail({ property }: PropertyDetailProps) {
-  const { webApp } = useTelegram()
-  const { setDisplay } = useDisplayContext()
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [activeImageIndex, setActiveImageIndex] = useState(-1)
-  const [date, setDate] = useState<Date | undefined>(undefined)
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: string; end: string } | null>(null)
+  const { webApp } = useTelegram();
+  const { setDisplay } = useDisplayContext();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(-1);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: string; end: string } | null>(
+    null
+  );
 
   useEffect(() => {
     if (webApp) {
-      webApp.BackButton.show()
-      webApp.BackButton.onClick(() => setDisplay(<HomeScreen />))
+      webApp.BackButton.show();
+      webApp.BackButton.onClick(() => setDisplay(<HomeScreen />));
     }
 
     return () => {
       if (webApp) {
-        webApp.BackButton.hide()
-        webApp.BackButton.offClick(() => setDisplay(<HomeScreen />))
+        webApp.BackButton.hide();
+        webApp.BackButton.offClick(() => setDisplay(<HomeScreen />));
       }
-    }
-  }, [webApp])
+    };
+  }, [webApp]);
 
   const toggleFavorite = () => {
-    setIsFavorite(!isFavorite)
-  }
+    setIsFavorite(!isFavorite);
+  };
 
   // Replace the getAvailableTimeSlots function with this version
   const getAvailableTimeSlots = (selectedDate: Date | undefined) => {
-    if (!selectedDate || !property.availabilitySchedule) return []
+    if (!selectedDate || !property.availabilitySchedule) return [];
 
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    const dayOfWeek = daysOfWeek[selectedDate.getDay()]
+    const daysOfWeek = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
+    const dayOfWeek = daysOfWeek[selectedDate.getDay()];
 
-    const availabilityForDay = property.availabilitySchedule.find((availability) => availability.day === dayOfWeek)
+    const availabilityForDay = property.availabilitySchedule.find(
+      (availability) => availability.day === dayOfWeek
+    );
 
-    return availabilityForDay?.timeSlots || []
-  }
+    return availabilityForDay?.timeSlots || [];
+  };
 
-  const handleBookViewing = () => {
-    if (!date || !selectedTimeSlot) return
+  const handleBookViewing = async () => {
+    if (!date || !selectedTimeSlot) return;
 
-    // Handle booking logic
-    alert(`Viewing requested for ${date.toDateString()} from ${selectedTimeSlot.start} to ${selectedTimeSlot.end}`)
-  }
+    try {
+      const viewingData = {
+        property: property.id,
+        date: date.getTime(),
+        targetUser: property.owner.id,
+        status: 'pending',
+      };
+
+      const formData = new FormData();
+      formData.append('viewing', JSON.stringify(viewingData)); // Correct key for the viewing data
+      formData.append('token', window.Telegram.WebApp.initData);
+
+      const response = await axios.post('api/viewings/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status != 200) {
+        return;
+      }
+
+      // Show success toast notification
+      toast({
+        title: 'Viewing Request Sent Successfully',
+        description:
+          'Your viewing request has been sent. Please wait for confirmation from the property owner.',
+        variant: 'default',
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+  };
 
   const openGoogleMaps = () => {
-    console.log(`https://www.google.com/maps/search/?api=1&query=${property.position[0]}%2C${property.position[1]}`)
+    console.log(
+      `https://www.google.com/maps/search/?api=1&query=${property.position[0]}%2C${property.position[1]}`
+    );
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${property.position[0]}%2C${property.position[1]}`,
-      "_blank",
-    )
-  }
+      '_blank'
+    );
+  };
 
   return (
     <div className="pb-16">
@@ -90,7 +135,9 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
         <div className="relative h-64 w-full bg-[#dde1e8]">
           <Image
             src={
-              activeImageIndex > -1 ? property.images[activeImageIndex] : `/${property.propertyType.toLowerCase()}.png`
+              activeImageIndex > -1
+                ? property.images[activeImageIndex]
+                : `/${property.propertyType.toLowerCase()}.png`
             }
             alt={property.title}
             fill
@@ -101,8 +148,7 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               variant="outline"
               size="icon"
               className="rounded-full bg-white/80 backdrop-blur-sm"
-              onClick={() => setDisplay(<HomeScreen />)}
-            >
+              onClick={() => setDisplay(<HomeScreen />)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </div>
@@ -111,11 +157,13 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               variant="outline"
               size="icon"
               className="rounded-full bg-white/80 backdrop-blur-sm"
-              onClick={toggleFavorite}
-            >
-              <Heart className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
+              onClick={toggleFavorite}>
+              <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full bg-white/80 backdrop-blur-sm">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-white/80 backdrop-blur-sm">
               <Share2 className="h-5 w-5" />
             </Button>
           </div>
@@ -126,11 +174,12 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
           {property.images.map((image, index) => (
             <button
               key={index}
-              className={`flex-shrink-0 ${activeImageIndex === index ? "ring-2 ring-[#F8F32B]" : ""}`}
-              onClick={() => setActiveImageIndex(index)}
-            >
+              className={`flex-shrink-0 ${
+                activeImageIndex === index ? 'ring-2 ring-[#F8F32B]' : ''
+              }`}
+              onClick={() => setActiveImageIndex(index)}>
               <Image
-                src={image || "/placeholder.svg"}
+                src={image || '/placeholder.svg'}
                 alt={`Thumbnail ${index + 1}`}
                 width={60}
                 height={60}
@@ -150,10 +199,12 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
               <MapPin className="h-4 w-4 mr-1" />
               <span>{property.location}</span>
             </div>
-            <Badge className="bg-blue text-yellow py-2 px-5 mt-2">{property.propertyType.toUpperCase()}</Badge>
+            <Badge className="bg-blue text-yellow py-2 px-5 mt-2">
+              {property.propertyType.toUpperCase()}
+            </Badge>
           </div>
           <div className="text-2xl font-bold">
-            {property.listingType === "buy"
+            {property.listingType === 'buy'
               ? `€${formatNumberWithCommas(property.price)}`
               : `€${formatNumberWithCommas(property.price)}/month`}
           </div>
@@ -188,7 +239,10 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
             <div>
               <h3 className="font-semibold mb-2">Location</h3>
               <div className="relative h-40 w-full rounded-lg overflow-hidden mb-2">
-                <MapWrapper draggable={false} position={[property.position[0], property.position[1]]} />
+                <MapWrapper
+                  draggable={false}
+                  position={[property.position[0], property.position[1]]}
+                />
               </div>
               <Button variant="outline" className="w-full text-[#2B2D42]" onClick={openGoogleMaps}>
                 <ExternalLink className="h-4 w-4 mr-2" />
@@ -233,18 +287,28 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
             mode="single"
             selected={date}
             onSelect={(newDate) => {
-              setDate(newDate)
-              setSelectedTimeSlot(null) // Reset time slot when date changes
+              setDate(newDate);
+              setSelectedTimeSlot(null); // Reset time slot when date changes
             }}
             className="rounded-md border "
             // Update the Calendar's disabled function
             disabled={(date) => {
-              if (!property.availabilitySchedule) return false
+              if (!property.availabilitySchedule) return false;
 
-              const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-              const dayOfWeek = daysOfWeek[date.getDay()]
+              const daysOfWeek = [
+                'Sunday',
+                'Monday',
+                'Tuesday',
+                'Wednesday',
+                'Thursday',
+                'Friday',
+                'Saturday',
+              ];
+              const dayOfWeek = daysOfWeek[date.getDay()];
 
-              return !property.availabilitySchedule.some((availability) => availability.day === dayOfWeek)
+              return !property.availabilitySchedule.some(
+                (availability) => availability.day === dayOfWeek
+              );
             }}
           />
 
@@ -256,15 +320,18 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
                   getAvailableTimeSlots(date).map((slot, index) => (
                     <Button
                       key={index}
-                      variant={selectedTimeSlot === slot ? "default" : "outline"}
-                      className={`text-sm ${selectedTimeSlot === slot ? "bg-blue text-yellow hover:text-white" : ""}`}
-                      onClick={() => setSelectedTimeSlot(slot)}
-                    >
+                      variant={selectedTimeSlot === slot ? 'default' : 'outline'}
+                      className={`text-sm ${
+                        selectedTimeSlot === slot ? 'bg-blue text-yellow hover:text-white' : ''
+                      }`}
+                      onClick={() => setSelectedTimeSlot(slot)}>
                       {slot.start} - {slot.end}
                     </Button>
                   ))
                 ) : (
-                  <p className="col-span-2 text-sm text-gray-500">No time slots available for this date.</p>
+                  <p className="col-span-2 text-sm text-gray-500">
+                    No time slots available for this date.
+                  </p>
                 )}
               </div>
             </div>
@@ -273,14 +340,12 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
           <Button
             className="w-full mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
             disabled={!date || !selectedTimeSlot}
-            onClick={handleBookViewing}
-          >
+            onClick={handleBookViewing}>
             <CalendarIcon className="h-4 w-4 mr-2" />
             Request Viewing
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

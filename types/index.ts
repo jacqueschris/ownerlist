@@ -21,6 +21,11 @@ export interface DataContextType {
   addFavourite: (propertyId: string) => Promise<void>;
   updateProperty: (newProperty: Property) => Promise<void>;
   deleteProperty: (propertyId: string) => Promise<void>;
+  getViewings: (token: string, userId: string) => Promise<void>;
+  incomingViewingRequests: IncomingViewing[] | undefined;
+  setIncomingViewingRequests: React.Dispatch<React.SetStateAction<IncomingViewing[] | undefined>>;
+  outgoingViewingRequests: OutgoingViewing[] | undefined;
+  setOutgoingViewingRequests: React.Dispatch<React.SetStateAction<OutgoingViewing[] | undefined>>;
 }
 
 export interface DisplayContextType {
@@ -87,4 +92,21 @@ export interface Filters {
   size: [number, number];
   amenities: string[];
   locality: string[];
+}
+
+export interface Viewing {
+  id: string;
+  date: number;
+  status: 'pending' | 'approved' | 'rejected';
+  property: Property;
+}
+
+export interface IncomingViewing {
+  viewing: Viewing;
+  sourceUser: PropertyOwner;
+}
+
+export interface OutgoingViewing {
+  viewing: Viewing;
+  targetUser: PropertyOwner;
 }

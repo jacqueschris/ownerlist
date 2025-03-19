@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { createContext, useState, useContext, ReactNode } from 'react';
 import { useLocation } from '../hooks/useLocation';
-import { DataContextType, Filters, Property } from '@/types';
+import { DataContextType, Filters, Property, IncomingViewing,
+  OutgoingViewing,
+  Viewing, } from '@/types';
 
 // Create the context with a default value
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -19,6 +21,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [properties, setProperties] = useState<Property[]>();
   const [favourites, setFavorites] = useState<Property[]>();
   const [favouritesIds, setFavoritesIds] = useState<string[]>();
+  const [incomingViewingRequests, setIncomingViewingRequests] = useState<IncomingViewing[]>();
+  const [outgoingViewingRequests, setOutgoingViewingRequests] = useState<OutgoingViewing[]>();
+
   let { location } = useLocation();
 
   async function register(data: any, skipRegister: boolean) {
@@ -112,6 +117,44 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setFavorites(newFavourites)
     setFavoritesIds(newFavourites?.map((property: any) => property.id))
   }
+  const getViewings = async (token: string, userId: string) => {
+    try {
+      let res = await axios.post(`/api/viewings/list`, { token, userId });
+
+      if (res.data.viewings) {
+        let incoming: IncomingViewing[] = [];
+        let outgoing: OutgoingViewing[] = [];
+
+        console.log(res.data.viewings);
+
+        res.data.viewings.forEach((viewing: any) => {
+          const newViewing: Viewing = {
+            id: viewing.id,
+            date: viewing.date,
+            status: viewing.status,
+            property: viewing.propertyDetails[0],
+          };
+
+          if (viewing.sourceUser === userId) {
+            outgoing.push({
+              viewing: newViewing,
+              targetUser: viewing.targetUserDetails[0],
+            } as OutgoingViewing);
+          } else {
+            incoming.push({
+              viewing: newViewing,
+              sourceUser: viewing.sourceUserDetails[0],
+            } as IncomingViewing);
+          }
+        });
+
+        setIncomingViewingRequests(incoming);
+        setOutgoingViewingRequests(outgoing);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <DataContext.Provider
@@ -135,7 +178,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         removeFavourite,
         addFavourite,
         updateProperty,
-        deleteProperty
+        deleteProperty,
+        getViewings,
+        incomingViewingRequests,
+        setIncomingViewingRequests,
+        outgoingViewingRequests, 
+        setOutgoingViewingRequests
       }}>
       {children}
     </DataContext.Provider>

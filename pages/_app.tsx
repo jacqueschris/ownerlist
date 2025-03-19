@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Poppins } from 'next/font/google';
 import { DataProvider } from '../contexts/Data';
 import { DisplayProvider } from '../contexts/Display';
+import { Toaster } from '@/components/ui/toaster';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -35,6 +36,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <DataProvider>
         <div className={poppins.className}>
           <Component {...pageProps} />
+          <Toaster />
         </div>
       </DataProvider>
     </DisplayProvider>

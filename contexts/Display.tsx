@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, ReactNode } from 'react';
-import { DisplayContextType } from '../types';
+import { DisplayContextType } from '../types/index';
 import { HomeScreen } from '@/components/screens/home-screen';
 
 // Create the context with a default value
