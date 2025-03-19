@@ -123,7 +123,7 @@ interface AddPropertyScreenProps {
 
 export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   const { setDisplay, setShowAddPropertyButton } = useDisplayContext();
-  const { isLoading, updateProperty, properties, deleteProperty } = useDataContext();
+  const { isLoading, updateProperty, properties, deleteProperty, newListing, data } = useDataContext();
   const { webApp } = useTelegram();
   const [listingType, setListingType] = useState<'buy' | 'rent'>('buy');
   const [propertyType, setPropertyType] = useState('');
@@ -173,7 +173,7 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   // Populate form with existing data if in edit mode
   useEffect(() => {
     if (propertyData) {
-      propertyData = properties?.find((property: any) => property.id == propertyData?.id)!;
+      propertyData = properties ? properties?.find((property: any) => property.id == propertyData?.id)! : propertyData;
 
       setListingType(propertyData.listingType);
       setPropertyType(propertyData.propertyType);
@@ -625,6 +625,14 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
       // Continue with form submission
       if (isEditMode) {
         await updateProperty(response.data.property);
+      } else{
+        let newProperty = response.data.property
+        newProperty.owner = {
+          username: data.username,
+          id: data.id,
+          name: data.name,
+        }
+        await newListing(response.data.property)
       }
       setDisplay(<HomeScreen />);
       setShowAddPropertyButton(true);
@@ -1271,7 +1279,7 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDelete}
-                      className="bg-red-600 hover:bg-red-700">
+                      className="bg-red-600 hover:bg-red-700 text-white">
                       Delete
                     </AlertDialogAction>
                   </AlertDialogFooter>

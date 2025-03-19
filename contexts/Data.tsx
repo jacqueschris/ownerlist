@@ -1,9 +1,11 @@
 import axios from 'axios';
 import { createContext, useState, useContext, ReactNode } from 'react';
 import { useLocation } from '../hooks/useLocation';
-import { DataContextType, Filters, Property, IncomingViewing,
+import {
+  DataContextType, Filters, Property, IncomingViewing,
   OutgoingViewing,
-  Viewing, } from '@/types';
+  Viewing,
+} from '@/types';
 
 // Create the context with a default value
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -28,19 +30,24 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   let { location } = useLocation();
 
   async function register(data: any, skipRegister: boolean) {
-    if (!skipRegister) {
-      let res = await axios.post('/api/user/register', {
-        username: data.user.username,
-        token: window.Telegram.WebApp.initData,
-        name: data.user.first_name,
-      });
-      if (res.status == 200) {
-        setData({
+    try {
+      if (!skipRegister) {
+        let res = await axios.post('/api/user/register', {
           username: data.user.username,
-          id: data.user.id,
+          token: window.Telegram.WebApp.initData,
           name: data.user.first_name,
         });
+        if (res.status == 200) {
+          setData({
+            username: data.user.username,
+            id: data.user.id,
+            name: data.user.first_name,
+          });
+        }
       }
+    }
+    catch (error) {
+      console.error(error);
     }
   }
 
@@ -81,7 +88,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setFavorites(properties => (
           res.data.favorites?.map((property: any) => ({
             ...property.property,
-            owner: {...property.owner},
+            owner: { ...property.owner },
           })) || []
         ));
       }
@@ -104,10 +111,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }
 
   const updateProperty = async (newProperty: Property) => {
-    if(properties){
+    if (properties) {
       let index = properties?.findIndex((property: any) => property.id == newProperty.id)
 
-      if(index != -1){
+      if (index != -1) {
         let newProperties = [...properties!]
         let oldOwner = newProperties[index!].owner
         newProperty.owner = oldOwner
@@ -115,10 +122,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setProperties(newProperties)
       }
     }
-    if(favourites){
+    if (favourites) {
       let index = favourites?.findIndex((property: any) => property.id == newProperty.id)
 
-      if(index != -1){
+      if (index != -1) {
         let newFavourites = [...favourites!]
         let oldOwner = newFavourites[index!].owner
         newProperty.owner = oldOwner
@@ -126,10 +133,10 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setFavorites(newFavourites)
       }
     }
-    if(listings){
+    if (listings) {
       let index = listings?.findIndex((property: any) => property.id == newProperty.id)
 
-      if(index != -1){
+      if (index != -1) {
         let newListings = [...listings!]
         let oldOwner = newListings[index!].owner
         newProperty.owner = oldOwner
@@ -137,16 +144,24 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setListings(newListings)
       }
     }
-  
+
   }
 
   const deleteProperty = async (propertyId: string) => {
     let newProperties = properties?.filter((property: any) => property.id != propertyId)
     let newFavourites = favourites?.filter((property: any) => property.id != propertyId)
+    let newListings = listings?.filter((property: any) => property.id != propertyId)
     setProperties(newProperties)
     setFavorites(newFavourites)
+    setListings(newListings)
     setFavoritesIds(newFavourites?.map((property: any) => property.id))
   }
+
+  const newListing = async (property: Property) => {
+    let newListings = [...(listings || []), property] 
+    setListings(newListings)
+  }
+
   const getViewings = async (token: string, userId: string) => {
     try {
       let res = await axios.post(`/api/viewings/list`, { token, userId });
@@ -224,10 +239,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         getViewings,
         incomingViewingRequests,
         setIncomingViewingRequests,
-        outgoingViewingRequests, 
+        outgoingViewingRequests,
         setOutgoingViewingRequests,
         listings,
-        getListings
+        getListings,
+        newListing
       }}>
       {children}
     </DataContext.Provider>

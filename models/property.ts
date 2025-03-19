@@ -24,6 +24,7 @@ export const PropertyOwnerSchema = z.object({
 export const PropertySchema = z.object({
   id: z.string(),
   active: z.boolean(),
+  index: z.number(),
   title: z.string(),
   price: z.number(),
   location: z.string(),

@@ -37,8 +37,6 @@ export async function isHashValid(data: Record<string, string>, botToken: string
     .sort()
     .join('\n');
 
-  console.log("data", data)
-  console.log("checkString", checkString)
 
   const secretKey = await webcrypto.subtle.importKey(
     'raw',

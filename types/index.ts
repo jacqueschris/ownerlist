@@ -28,6 +28,7 @@ export interface DataContextType {
   setIncomingViewingRequests: React.Dispatch<React.SetStateAction<IncomingViewing[] | undefined>>;
   outgoingViewingRequests: OutgoingViewing[] | undefined;
   setOutgoingViewingRequests: React.Dispatch<React.SetStateAction<OutgoingViewing[] | undefined>>;
+  newListing: (property: Property) => Promise<void>;
 }
 
 export interface DisplayContextType {

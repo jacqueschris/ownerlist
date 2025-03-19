@@ -11,12 +11,14 @@ import ButtonToggle from './button-toggle';
 import { Filters } from '@/types/index';
 import { LocalitiesSelect } from './localities-select';
 import { useDataContext } from '@/contexts/Data';
+import { AlertDialogCancel } from './ui/alert-dialog';
 
 interface PropertyFiltersProps {
-  onClose: () => void;
-  onApply: (filters: Filters) => void;
-  onReset: () => void;
+  onClose?: () => void;
+  onApply?: (filters: Filters) => void;
+  onReset?: () => void;
   initialFilters: Filters;
+  alertCreation?: boolean
 }
 
 export function PropertyFilters({
@@ -24,6 +26,7 @@ export function PropertyFilters({
   onApply,
   onReset,
   initialFilters,
+  alertCreation = false,
 }: PropertyFiltersProps) {
   const [listingType, setListingType] = useState<'buy' | 'rent' | 'all'>(
     initialFilters.listingType
@@ -59,24 +62,33 @@ export function PropertyFilters({
   };
 
   const handleApply = () => {
-    onApply({
-      listingType,
-      priceRange,
-      propertyType,
-      bedrooms,
-      bathrooms,
-      size,
-      amenities,
-      locality
-    });
+    if(onApply){
+      onApply({
+        listingType,
+        priceRange,
+        propertyType,
+        bedrooms,
+        bathrooms,
+        size,
+        amenities,
+        locality
+      });
+    }
+    
   };
 
   const handleReset = () => {
-    onReset();
+    if(onReset){
+      onReset();
+    }
   };
 
+  const addSearchAlert = () => {
+
+  }
+
   return (
-    <div className="bg-white p-4 border-t border-gray-200 z-100">
+    <div className="bg-white p-4 z-100">
        {properties && (
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
@@ -221,11 +233,20 @@ export function PropertyFilters({
             </Button>
           }
 
+          { alertCreation ? 
+          
           <Button
             className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-            onClick={handleApply}>
-            {properties ? "Apply Filters" : "Search for properties"}
+            onClick={addSearchAlert}>
+            Save Search
           </Button>
+          : 
+          <Button
+          className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+          onClick={handleApply}>
+          {properties ? "Apply Filters" : "Search for properties"}
+        </Button>}
+          
         </div>
       </div>
     </div>

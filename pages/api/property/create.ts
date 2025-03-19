@@ -8,7 +8,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { PropertySchema } from "@/models/property";
 import { readFileSync, rename } from "fs";
-import { parseForm, saveFiles } from "./utils";
+import { getNextPropertyIndex, parseForm, saveFiles } from "./utils";
 
 // Disable default body parser to handle FormData
 export const config = {
@@ -63,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     propertyData.owner = Number(userData.user!.id);
     propertyData.active = true;
     propertyData.id = uuidv4();
+    propertyData.index = await getNextPropertyIndex();
 
     // Validate property data
     const result = PropertySchema.safeParse(propertyData);
@@ -74,7 +75,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME);
     const propertiesCollection = db.collection("properties");
-
+    
     await propertiesCollection.insertOne(propertyData);
 
     return res.status(200).json({
