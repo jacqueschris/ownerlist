@@ -17,7 +17,6 @@ interface PropertyFiltersProps {
   onApply: (filters: Filters) => void;
   onReset: () => void;
   initialFilters: Filters;
-  searchMade: boolean;
 }
 
 export function PropertyFilters({
@@ -25,7 +24,6 @@ export function PropertyFilters({
   onApply,
   onReset,
   initialFilters,
-  searchMade,
 }: PropertyFiltersProps) {
   const [listingType, setListingType] = useState<'buy' | 'rent' | 'all'>(
     initialFilters.listingType

@@ -19,7 +19,6 @@ export function HomeScreen() {
   const { properties, getProperties } = useDataContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filtersVisible, setFiltersVisible] = useState(false);
-  const [searchMade, setSearchMade] = useState(false);
   const [propertiesLoading, setPropertiesLoading] = useState(false);
 
   // Initialize filters with default values
@@ -43,7 +42,6 @@ export function HomeScreen() {
     setFilters(newFilters);
     setFiltersVisible(false);
     setShowAddPropertyButton(true);
-    setSearchMade(true);
     setPropertiesLoading(true);
 
     try {
@@ -116,7 +114,6 @@ export function HomeScreen() {
               onClose={handleCloseFilters}
               onApply={handleApplyFilters}
               onReset={handleResetFilters}
-              searchMade={searchMade}
               initialFilters={filters}
             />
           )}
