@@ -120,6 +120,7 @@ export function AddPropertyScreen() {
   const [price, setPrice] = useState("")
   const [bedrooms, setBedrooms] = useState("")
   const [bathrooms, setBathrooms] = useState("")
+  const [locality, setLocality] = useState("")
   const [size, setSize] = useState("")
   const [location, setLocation] = useState("")
   const [description, setDescription] = useState("")
@@ -325,7 +326,7 @@ export function AddPropertyScreen() {
             )
 
             if (matchingLocality) {
-              setLocation(matchingLocality)
+              setLocality(matchingLocality)
             }
           }
         }
@@ -479,10 +480,11 @@ export function AddPropertyScreen() {
         propertyType,
         title,
         price: Number(price),
-        bedrooms,
-        bathrooms,
-        size,
+        bedrooms: Number(bedrooms),
+        bathrooms: Number(bedrooms),
+        size: Number(size),
         location,
+        locality,
         position,
         description,
         amenities,
@@ -638,7 +640,7 @@ export function AddPropertyScreen() {
 
           <div className="mt-4">
             <Label htmlFor="locality">Locality</Label>
-            <Select onValueChange={setLocation}>
+            <Select onValueChange={setLocality}>
               <SelectTrigger id="locality" className="mt-1">
                 <SelectValue placeholder="Select locality" />
               </SelectTrigger>
@@ -749,7 +751,7 @@ export function AddPropertyScreen() {
               </Label>
               <div className="h-60 rounded-md border overflow-hidden relative">
                 <MapWrapper position={position} setPosition={setPosition} />
-                <div className="absolute bottom-2 right-2 z-[1000] bg-white p-2 rounded-md shadow-md text-xs">
+                <div className="absolute bottom-2 right-2 z-[2] bg-white p-2 rounded-md shadow-md text-xs">
                   <div>Lat: {position[0].toFixed(6)}</div>
                   <div>Lng: {position[1].toFixed(6)}</div>
                 </div>

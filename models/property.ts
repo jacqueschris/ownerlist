@@ -36,8 +36,6 @@ export const PropertySchema = z.object({
   owner: z.number(),
   bathrooms: z.number(),
   size: z.number(),
-  image: z.string(),
-  isFavorite: z.boolean(),
   carSpaces: z.array(CarSpaceSchema),
   availabilitySchedule: z.array(DayAvailabilitySchema),
   listingType: z.enum(["buy", "rent"]),

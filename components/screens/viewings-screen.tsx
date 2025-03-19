@@ -10,9 +10,17 @@ import Link from "next/link"
 import Image from "next/image"
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
 import Header from "../header"
+import Home from "@/pages"
+import { useDisplayContext } from "@/contexts/Display"
 
 export function ViewingsScreen() {
   const [hasListings, setHasListings] = useState(true)
+
+  const {setDisplay} = useDisplayContext();
+
+  const goToHome = () => {
+    setDisplay(<Home />)
+  }
 
   // Mock data for viewing requests made to your properties
   const [incomingRequests, setIncomingRequests] = useState([
@@ -267,8 +275,8 @@ export function ViewingsScreen() {
                 <div className="text-center py-10">
                   <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-500">You haven't requested any property viewings yet</p>
-                  <Button className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]" asChild>
-                    <Link href="/">Browse Properties</Link>
+                  <Button className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={goToHome}>
+                    Browse Properties
                   </Button>
                 </div>
               )}
