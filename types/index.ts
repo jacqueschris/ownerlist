@@ -84,4 +84,5 @@ export interface Filters {
   bathrooms: string;
   size: [number, number];
   amenities: string[];
+  locality: string[];
 }

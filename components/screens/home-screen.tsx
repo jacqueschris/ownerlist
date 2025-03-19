@@ -18,7 +18,7 @@ export function HomeScreen() {
   const { setDisplay, showAddPropertyButton, setShowAddPropertyButton } = useDisplayContext();
   const { properties, getProperties } = useDataContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filtersVisible, setFiltersVisible] = useState(true);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [searchMade, setSearchMade] = useState(false);
   const [propertiesLoading, setPropertiesLoading] = useState(false);
 
@@ -31,6 +31,7 @@ export function HomeScreen() {
     bathrooms: '',
     size: [0, 500],
     amenities: [],
+    locality: []
   });
 
   const handleAddProperty = () => {
@@ -81,6 +82,7 @@ export function HomeScreen() {
       bathrooms: '',
       size: [0, 500],
       amenities: [],
+      locality: []
     });
   };
 
@@ -98,7 +100,7 @@ export function HomeScreen() {
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
         <div className="sticky top-0 z-10 bg-blue shadow-sm">
-          {searchMade ? (
+          {properties ? (
             <div className="p-4">
               <SearchBar
                 value={searchQuery}
@@ -109,7 +111,7 @@ export function HomeScreen() {
           ) : (
             <Header title="Search for properties" />
           )}
-          {filtersVisible && (
+          {(filtersVisible || !properties) && (
             <PropertyFilters
               onClose={handleCloseFilters}
               onApply={handleApplyFilters}

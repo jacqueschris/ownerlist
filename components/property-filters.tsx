@@ -9,6 +9,8 @@ import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import ButtonToggle from './button-toggle';
 import { Filters } from '@/types';
+import { LocalitiesSelect } from './localities-select';
+import { useDataContext } from '@/contexts/Data';
 
 interface PropertyFiltersProps {
   onClose: () => void;
@@ -31,9 +33,12 @@ export function PropertyFilters({
   const [priceRange, setPriceRange] = useState<[number, number]>(initialFilters.priceRange);
   const [propertyType, setPropertyType] = useState(initialFilters.propertyType);
   const [bedrooms, setBedrooms] = useState(initialFilters.bedrooms);
+  const [locality, setLocality] = useState<string[]>(initialFilters.locality)
   const [bathrooms, setBathrooms] = useState(initialFilters.bathrooms);
   const [size, setSize] = useState<[number, number]>(initialFilters.size);
   const [amenities, setAmenities] = useState<string[]>(initialFilters.amenities);
+
+  const { properties } = useDataContext();
 
   // Update local state when initialFilters change
   useEffect(() => {
@@ -44,6 +49,7 @@ export function PropertyFilters({
     setBathrooms(initialFilters.bathrooms);
     setSize(initialFilters.size);
     setAmenities(initialFilters.amenities);
+    setLocality(initialFilters.locality);
   }, [initialFilters]);
 
   const toggleAmenity = (amenity: string) => {
@@ -63,6 +69,7 @@ export function PropertyFilters({
       bathrooms,
       size,
       amenities,
+      locality
     });
   };
 
@@ -72,7 +79,7 @@ export function PropertyFilters({
 
   return (
     <div className="bg-white p-4 border-t border-gray-200 z-100">
-       {searchMade && (
+       {properties && (
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
        
@@ -124,6 +131,16 @@ export function PropertyFilters({
             </SelectContent>
           </Select>
         </div>
+
+        <div className="mt-4">
+        <LocalitiesSelect
+                selected={locality}
+                onChange={setLocality}
+                placeholder="Select a locality..."
+                multiple={true}
+                label="Locality"
+              />
+          </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -200,7 +217,7 @@ export function PropertyFilters({
         </div>
 
         <div className="flex space-x-4 pt-4">
-          {searchMade &&
+          {properties &&
             <Button variant="outline" className="flex-1" onClick={handleReset}>
               Reset
             </Button>
@@ -209,7 +226,7 @@ export function PropertyFilters({
           <Button
             className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
             onClick={handleApply}>
-            {searchMade ? "Apply Filters" : "Search for properties"}
+            {properties ? "Apply Filters" : "Search for properties"}
           </Button>
         </div>
       </div>
