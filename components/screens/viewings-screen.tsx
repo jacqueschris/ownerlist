@@ -1,27 +1,31 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BottomNavigation } from "../bottom-navigation"
-import Header from "../header"
-import Home from "@/pages"
-import { useDisplayContext } from "@/contexts/Display"
-import { useDataContext } from "@/contexts/Data"
-import { OutgoingViewingsList } from "../viewings/outgoing-viewings-list"
-import { IncomingViewingsList } from "../viewings/incoming-viewings-list"
-import { EmptyViewingsState } from "../viewings/empty-viewings-state"
-
+import { useEffect, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BottomNavigation } from '../bottom-navigation';
+import Header from '../header';
+import Home from '@/pages';
+import { useDisplayContext } from '@/contexts/Display';
+import { useDataContext } from '@/contexts/Data';
+import { OutgoingViewingsList } from '../viewings/outgoing-viewings-list';
+import { IncomingViewingsList } from '../viewings/incoming-viewings-list';
+import { EmptyViewingsState } from '../viewings/empty-viewings-state';
 
 export function ViewingsScreen() {
-  const [hasListings, setHasListings] = useState(true)
-  const { incomingViewingRequests, outgoingViewingRequests } = useDataContext()
-  const { setDisplay } = useDisplayContext()
+  const [hasListings, setHasListings] = useState(true);
+  const { incomingViewingRequests, outgoingViewingRequests } = useDataContext();
+  const { setDisplay } = useDisplayContext();
 
+  useEffect(() => {
+    if (incomingViewingRequests) {
+      setHasListings(incomingViewingRequests.length > 0);
+    }
+  }, [incomingViewingRequests]);
   const goToHome = () => {
-    setDisplay(<Home />)
-  }
+    setDisplay(<Home />);
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -29,10 +33,10 @@ export function ViewingsScreen() {
         <Header title="Viewing Requests"></Header>
 
         <div className="p-4">
-          <Tabs defaultValue={hasListings ? "incoming" : "outgoing"}>
+          <Tabs defaultValue={hasListings ? 'incoming' : 'outgoing'}>
             <TabsList className="grid grid-cols-2 mb-4">
               {hasListings && <TabsTrigger value="incoming">Requests to You</TabsTrigger>}
-              <TabsTrigger value="outgoing" className={!hasListings ? "col-span-2" : ""}>
+              <TabsTrigger value="outgoing" className={!hasListings ? 'col-span-2' : ''}>
                 Your Requests
               </TabsTrigger>
             </TabsList>
@@ -42,20 +46,25 @@ export function ViewingsScreen() {
                 {incomingViewingRequests && incomingViewingRequests.length > 0 ? (
                   <IncomingViewingsList requests={incomingViewingRequests} />
                 ) : (
-                  <EmptyViewingsState type="incoming" message="No viewing requests for your properties yet" />
+                  <EmptyViewingsState
+                    type="incoming"
+                    message="No viewing requests for your properties yet"
+                  />
                 )}
               </TabsContent>
             )}
 
             <TabsContent value="outgoing" className="space-y-4">
               {outgoingViewingRequests && outgoingViewingRequests.length > 0 ? (
-                <OutgoingViewingsList requests={outgoingViewingRequests} />
+                <OutgoingViewingsList />
               ) : (
                 <EmptyViewingsState
                   type="outgoing"
                   message="You haven't requested any property viewings yet"
                   actionButton={
-                    <Button className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={goToHome}>
+                    <Button
+                      className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                      onClick={goToHome}>
                       Browse Properties
                     </Button>
                   }
@@ -68,6 +77,5 @@ export function ViewingsScreen() {
 
       <BottomNavigation />
     </div>
-  )
+  );
 }
-

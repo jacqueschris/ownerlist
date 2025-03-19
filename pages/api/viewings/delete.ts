@@ -3,17 +3,19 @@ import clientPromise from '../config';
 import { isHashValid } from '../validate-hash';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
-  const client = await clientPromise;
-  const db = client.db(process.env.DB_NAME); // Replace with your actual DB name
-  const usersCollection = db.collection('favorites');
-
-  if (req.method !== 'POST') {
+  if (req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   if (!req.body.token || req.body.token.length == 0) {
     return res.status(400).json({
       error: 'Missing user token',
+    });
+  }
+
+  if (!req.body.viewingId) {
+    return res.status(400).json({
+      error: 'Missing vieiwng id',
     });
   }
 
@@ -27,8 +29,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   try {
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME); // Replace with your actual DB name
+    const usersCollection = db.collection('viewings');
+
     const result = await usersCollection.deleteOne(
-      { propertyId: req.body.propertyId, userId: req.body.userId } // Finding the favorite by property ID and user ID
+      { id: req.body.viewingId } // Finding the favorite by property ID and user ID
     );
 
     if (result.deletedCount === 0) {
