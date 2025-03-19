@@ -6,7 +6,7 @@ import { File, Formidable } from "formidable";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { propertySchema } from "@/models/property";
+import { PropertySchema } from "@/models/property";
 import { readFileSync, rename } from "fs";
 
 // Disable default body parser to handle FormData
@@ -105,7 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     propertyData.id = uuidv4();
 
     // Validate property data
-    const result = propertySchema.safeParse(propertyData);
+    const result = PropertySchema.safeParse(propertyData);
     if (!result.success) {
       return res.status(400).json({ error: "Validation failed", details: result.error.errors });
     }

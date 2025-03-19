@@ -43,6 +43,12 @@ export interface DayAvailability {
   day: string;
   timeSlots: TimeSlotAvailability[];
 }
+
+export interface CarSpace {
+  type: 'garage' | 'carspace';
+  capacity: number;
+}
+
 export interface Property {
   id: string;
   title: string;
@@ -51,6 +57,7 @@ export interface Property {
   description: string;
   propertyType: string;
   bedrooms: number;
+  locality: string;
   position: number[];
   amenities: string[];
   images: string[];
@@ -59,6 +66,7 @@ export interface Property {
   size: number;
   image: string;
   isFavorite: boolean;
+  carSpaces: CarSpace[];
   availabilitySchedule: DayAvailability[];
   listingType: 'buy' | 'rent';
 }

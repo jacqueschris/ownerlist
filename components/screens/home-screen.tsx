@@ -134,7 +134,7 @@ export function HomeScreen() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 overflow-auto pb-16">
-        <div className="sticky top-0 z-10 bg-blue h-[68.5px] shadow-sm">
+        <div className="sticky top-0 z-10 bg-blue shadow-sm">
           <div className="p-4">
             <SearchBar
               value={searchQuery}
