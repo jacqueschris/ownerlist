@@ -6,12 +6,12 @@ import { Bath, Bed, Building, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Property } from '@/types';
 import { useDisplayContext } from '@/contexts/Display';
-import { PropertyDetail } from './screens/property-detail';
 import { formatNumberWithCommas } from '@/components/lib/utils';
 import axios from 'axios';
 import { useDataContext } from '@/contexts/Data';
 import EmptyScreen from './screens/empty-screen';
 import { AddPropertyScreen } from './screens/add-property-screen';
+import { PropertyDetail } from './property/property-detail';
 
 interface PropertyGridProps {
   properties: Property[];

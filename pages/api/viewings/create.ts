@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(200).json({
       success: true,
       message: 'Viewing added successfully',
-      Viewing: { ...viewingData },
+      viewing: { ...viewingData },
     });
   } catch (error) {
     console.error('Error handling Viewing submission:', error);

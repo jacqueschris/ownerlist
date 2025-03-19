@@ -11,10 +11,10 @@ import Header from '../header';
 import Home from '@/pages';
 import { useDisplayContext } from '@/contexts/Display';
 import { useDataContext } from '@/contexts/Data';
-import { PropertyDetail } from './property-detail';
 import { formatViewingDate } from '@/lib/utils';
 import axios from 'axios';
 import { IncomingViewing } from "@/types/index";
+import { PropertyDetail } from '../property/property-detail';
 
 export function ViewingsScreen() {
   const [hasListings, setHasListings] = useState(true);
