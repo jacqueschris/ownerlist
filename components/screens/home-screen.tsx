@@ -45,7 +45,7 @@ export function HomeScreen() {
     setPropertiesLoading(true);
 
     try {
-      await getProperties(window.Telegram.WebApp.initData, filters);
+      await getProperties(window.Telegram.WebApp.initData, newFilters);
     } catch {
       console.error(console.error());
     }

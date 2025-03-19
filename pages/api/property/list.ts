@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     // Get filter parameters from request body
     const { listingType, priceRange, propertyType, bedrooms, bathrooms, size, amenities } =
-      req.body;
+      req.body.filters;
 
     // Build query filters
     const filters: Record<string, any> = {};
