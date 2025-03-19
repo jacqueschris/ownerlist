@@ -8,6 +8,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { PropertySchema } from "@/models/property";
 import { readFileSync, rename } from "fs";
+import { parseForm, saveFiles } from "./utils";
 
 // Disable default body parser to handle FormData
 export const config = {
@@ -16,48 +17,6 @@ export const config = {
   },
 };
 
-// Helper function to parse FormData
-const parseForm = (req: NextApiRequest) => {
-  return new Promise<{ fields: Record<string, string>; files: File[]}>((resolve, reject) => {
-    const form = new Formidable({ multiples: true, uploadDir: "./public/uploads", keepExtensions: true });
-
-    form.parse(req, (err, fields, files) => {
-      if (err) return reject(err);
-
-      // Ensure fields are strings and files are an array
-      const formattedFields = Object.keys(fields).reduce((acc:any, key) => {
-        acc[key] = Array.isArray(fields[key]) ? fields[key][0] : fields[key];
-        return acc;
-      }, {} as Record<string, string>);
-
-      const formattedFiles = Array.isArray(files.files) ? files.files : [files.files];
-
-      resolve({ fields: formattedFields, files: formattedFiles as File[] });
-    });
-  });
-};
-
-// Helper function to save uploaded files
-const saveFiles = async (files: File[]) => {
-  const uploadDir = path.join(process.cwd(), "public/uploads");
-
-  // Ensure the upload directory exists
-  await mkdir(uploadDir, { recursive: true });
-
-  // Process each file and move it to the upload directory
-  const filePaths = await Promise.all(
-    files.map(async (file) => {
-      if (!file || !file.filepath) return null;
-      const fileExt = path.extname(file.originalFilename || "");
-      const fileName = `${uuidv4()}${fileExt}`;
-      const newPath = path.join(uploadDir, fileName);
-      await rename(file.filepath, newPath, ()=>{});
-      return `/uploads/${fileName}`; // Return relative path for frontend use
-    })
-  );
-
-  return filePaths.filter(Boolean); // Remove null values
-};
 
 // API handler
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {

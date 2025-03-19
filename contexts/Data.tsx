@@ -93,6 +93,26 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     setFavoritesIds(newFavourites?.map((property: any) => property.id))
   }
 
+  const updateProperty = async (newProperty: Property) => {
+    let index = properties?.findIndex((property: any) => property.id == newProperty.id)
+
+    if(index != -1){
+      let newProperties = [...properties!]
+      let oldOwner = newProperties[index!].owner
+      newProperty.owner = oldOwner
+      newProperties[index!] = newProperty
+      setProperties(newProperties)
+    }
+  }
+
+  const deleteProperty = async (propertyId: string) => {
+    let newProperties = properties?.filter((property: any) => property.id != propertyId)
+    let newFavourites = favourites?.filter((property: any) => property.id != propertyId)
+    setProperties(newProperties)
+    setFavorites(newFavourites)
+    setFavoritesIds(newFavourites?.map((property: any) => property.id))
+  }
+
   return (
     <DataContext.Provider
       value={{
@@ -113,7 +133,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         favourites,
         favouritesIds,
         removeFavourite,
-        addFavourite
+        addFavourite,
+        updateProperty,
+        deleteProperty
       }}>
       {children}
     </DataContext.Provider>

@@ -11,6 +11,7 @@ import { formatNumberWithCommas } from '@/components/lib/utils';
 import axios from 'axios';
 import { useDataContext } from '@/contexts/Data';
 import EmptyScreen from './screens/empty-screen';
+import { AddPropertyScreen } from './screens/add-property-screen';
 
 interface PropertyGridProps {
   properties: Property[];
@@ -63,6 +64,15 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
     );
   }
 
+  const handlePropertyClick = (property: Property) => {
+    if(property.owner.id == data.id) {
+      setDisplay(<AddPropertyScreen propertyData={property} />)
+    } else {
+      setDisplay(<PropertyDetail property={property} />)
+
+    }
+  }
+
   return (
     <div className="grid grid-cols-2 gap-4">
       {properties && properties.map((property) => (
@@ -70,7 +80,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
           className=" cursor-pointer"
           key={property.id}
           onClick={() => {
-            setDisplay(<PropertyDetail property={property} />);
+            handlePropertyClick(property)
           }}>
           <Card className="overflow-hidden h-full">
             <div className="relative bg-[#dde1e8]">

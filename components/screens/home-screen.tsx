@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SearchBar } from '../ui/search-bar';
 import { PropertyFilters } from '../property-filters';
 import { PropertyGrid } from '../property-grid';

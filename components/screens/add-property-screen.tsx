@@ -10,7 +10,7 @@ import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Checkbox } from "../ui/checkbox"
 import { useTelegram } from "../telegram-provider"
-import { X, Plus, Clock, Loader2, ImageIcon, AlertCircle, MapPin } from "lucide-react"
+import { X, Plus, Clock, Loader2, ImageIcon, AlertCircle, MapPin, Trash2 } from "lucide-react"
 import { HomeScreen } from "./home-screen"
 import { useDisplayContext } from "@/contexts/Display"
 import { useDataContext } from "@/contexts/Data"
@@ -33,6 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Property } from "@/types"
 
 // Type for selected image files
 interface SelectedImage {
@@ -110,9 +111,13 @@ const maltaLocalities = [
   "Gozo - Zebbug",
 ]
 
-export function AddPropertyScreen() {
+interface AddPropertyScreenProps {
+  propertyData?: Property
+}
+
+export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   const { setDisplay, setShowAddPropertyButton } = useDisplayContext()
-  const { isLoading } = useDataContext()
+  const { isLoading, updateProperty, properties, deleteProperty } = useDataContext()
   const { webApp } = useTelegram()
   const [listingType, setListingType] = useState<"buy" | "rent">("buy")
   const [propertyType, setPropertyType] = useState("")
@@ -127,7 +132,9 @@ export function AddPropertyScreen() {
   const [descriptionError, setDescriptionError] = useState("")
   const [amenities, setAmenities] = useState<string[]>([])
   const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([])
+  const [images, setImages] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [availabilitySchedule, setAvailabilitySchedule] = useState<
     {
@@ -146,10 +153,41 @@ export function AddPropertyScreen() {
   const [carSpaces, setCarSpaces] = useState<{ type: "garage" | "carspace"; capacity: number }[]>([])
   const [newCarSpaceType, setNewCarSpaceType] = useState<"garage" | "carspace">("garage")
   const [newCarSpaceCapacity, setNewCarSpaceCapacity] = useState<number>(1)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   // Map state
   const [position, setPosition] = useState<[number, number]>([35.8977, 14.5128]) // Default to Valletta, Malta
   const [mapReady, setMapReady] = useState(false)
+
+  // Determine if we're in edit mode
+  const isEditMode = !!propertyData
+
+  // Populate form with existing data if in edit mode
+  useEffect(() => {
+    if (propertyData) {
+      propertyData = properties?.find((property: any) => property.id == propertyData?.id)!
+
+      setListingType(propertyData.listingType)
+      setPropertyType(propertyData.propertyType)
+      setTitle(propertyData.title)
+      setPrice(String(propertyData.price))
+      setBedrooms(String(propertyData.bedrooms))
+      setBathrooms(String(propertyData.bathrooms))
+      setSize(String(propertyData.size))
+      setLocality(propertyData.locality)
+      setLocation(propertyData.location)
+      setPosition([propertyData.position[0], propertyData.position[1]])
+      setDescription(propertyData.description)
+      setAmenities(propertyData.amenities)
+      setAvailabilitySchedule(propertyData.availabilitySchedule)
+      setCarSpaces(propertyData.carSpaces)
+
+      // Set remote images if available
+      if (propertyData.images && propertyData.images.length > 0) {
+        setImages(propertyData.images)
+      }
+    }
+  }, [propertyData])
 
   useEffect(() => {
     // This is needed because Leaflet requires window to be defined
@@ -200,9 +238,9 @@ export function AddPropertyScreen() {
                 locality.toLowerCase().includes(loc.toLowerCase()),
             )
 
-            if (matchingLocality) {
-              setLocation(matchingLocality)
-            }
+            // if (matchingLocality) {
+            //   setLocality(matchingLocality)
+            // }
           }
         }
         return data
@@ -287,6 +325,12 @@ export function AddPropertyScreen() {
       newImages.splice(index, 1)
       return newImages
     })
+  }
+
+  const removeRemoteImage = (index: number) => {
+    let newImages = [...images]
+    newImages.splice(index, 1)
+    setImages(newImages)
   }
 
   const handleAddressSearch = async () => {
@@ -451,6 +495,46 @@ export function AddPropertyScreen() {
     setCarSpaces(newCarSpaces)
   }
 
+  const handleDelete = async () => {
+    if (!propertyData?.id) return
+
+    setIsDeleting(true)
+    try {
+      const response = await axios.request({
+        method: "delete",
+        url: "/api/property/delete",
+        data: {
+          id: propertyData?.id,
+          token: window.Telegram.WebApp.initData,
+        },
+      });
+
+      if (response.status != 200) {
+        setError(isEditMode ? "Failed to update property" : "Failed to submit property")
+        return
+      }
+
+      toast({
+        title: "Property Deleted",
+        description: "Your property listing has been deleted",
+        variant: "default",
+      })
+      await deleteProperty(propertyData.id)
+      setDisplay(<HomeScreen />)
+      setShowAddPropertyButton(true)
+    } catch (error) {
+      console.error("Error deleting property:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete property. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(false)
+      setDeleteDialogOpen(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -475,13 +559,14 @@ export function AddPropertyScreen() {
 
     try {
       // Build the complete property object
-      const propertyData = {
+      const propertyDataToSend = {
+        id: isEditMode && propertyData ? propertyData.id : undefined,
         listingType,
         propertyType,
         title,
         price: Number(price),
         bedrooms: Number(bedrooms),
-        bathrooms: Number(bedrooms),
+        bathrooms: Number(bathrooms),
         size: Number(size),
         location,
         locality,
@@ -489,40 +574,47 @@ export function AddPropertyScreen() {
         description,
         amenities,
         availabilitySchedule,
-        carSpaces, // Add this line
+        carSpaces,
+        retainedImageIds: images
       }
 
       const formData = new FormData()
       selectedImages.forEach((file) => {
         formData.append("files", file.file) // Same key for all files
       })
-      formData.append("property", JSON.stringify(propertyData)) // Append additional data
+      formData.append("property", JSON.stringify(propertyDataToSend)) // Append additional data
       formData.append("token", window.Telegram.WebApp.initData) // Append additional data
 
       // Log the complete object
-      console.log("Property Data:", propertyData)
+      console.log("Property Data:", propertyDataToSend)
 
-      const response = await axios.post("/api/property/create", formData)
+      // Use different endpoints for create vs update
+      const endpoint = isEditMode ? `/api/property/update` : "/api/property/create"
+      const response = await axios.post(endpoint, formData)
 
       if (response.status != 200) {
-        setError("Failed to submit property")
+        setError(isEditMode ? "Failed to update property" : "Failed to submit property")
         return
       }
 
       // Show success toast notification
       toast({
-        title: "Property Added Successfully",
-        description: "Your property listing has been created",
+        title: isEditMode ? "Property Updated Successfully" : "Property Added Successfully",
+        description: isEditMode ? "Your property listing has been updated" : "Your property listing has been created",
         variant: "default",
-        //icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
       })
 
       // Continue with form submission
+      if (isEditMode) {
+        await updateProperty(response.data.property)
+      }
       setDisplay(<HomeScreen />)
       setShowAddPropertyButton(true)
     } catch (error) {
       console.error("Error submitting form:", error)
-      setError("Failed to submit property. Please try again.")
+      setError(
+        isEditMode ? "Failed to update property. Please try again." : "Failed to submit property. Please try again.",
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -530,7 +622,7 @@ export function AddPropertyScreen() {
 
   return (
     <div className="pb-16">
-      <Header showBack={true} title="List New Property"></Header>
+      <Header showBack={true} title={isEditMode ? "Edit Property" : "List New Property"}></Header>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-6">
         <div>
@@ -640,7 +732,7 @@ export function AddPropertyScreen() {
 
           <div className="mt-4">
             <Label htmlFor="locality">Locality</Label>
-            <Select onValueChange={setLocality}>
+            <Select value={locality} onValueChange={setLocality}>
               <SelectTrigger id="locality" className="mt-1">
                 <SelectValue placeholder="Select locality" />
               </SelectTrigger>
@@ -731,7 +823,8 @@ export function AddPropertyScreen() {
                 variant="secondary"
                 size="sm"
                 className="absolute right-1 top-1/2 -translate-y-1/2 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-                onClick={handleAddressSearch}>
+                onClick={handleAddressSearch}
+              >
                 Search
               </Button>
             </div>
@@ -896,6 +989,21 @@ export function AddPropertyScreen() {
         <div>
           <h2 className="text-lg font-semibold mb-4">Property Images</h2>
           <div className="flex flex-wrap gap-2">
+            {/* Display existing remote images */}
+            {images.map((image, index) => (
+              <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden group">
+                <img src={image || "/placeholder.svg"} alt="Property" className="w-full h-full object-contain" />
+                <button
+                  type="button"
+                  onClick={() => removeRemoteImage(index)}
+                  className="absolute top-1 right-1 bg-black bg-opacity-50 rounded-full p-1 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+
+            {/* Display newly selected images */}
             {selectedImages.map((image, index) => (
               <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden group">
                 <img
@@ -1067,20 +1175,80 @@ export function AddPropertyScreen() {
           </div>
         </div>
         {error && <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">{error}</div>}
-        <Button
-          type="submit"
-          className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-          disabled={isLoading || isSubmitting}
-        >
-          {isLoading || isSubmitting ? (
+
+        {/* Conditional rendering of buttons based on edit/create mode */}
+        <div className={`flex ${isEditMode ? "gap-4" : ""}`}>
+          {isEditMode ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading Images & Submitting...
+              <Button
+                type="submit"
+                className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                disabled={isLoading || isSubmitting || isDeleting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+
+              <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="flex-1"
+                    disabled={isLoading || isSubmitting || isDeleting}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Listing
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your property listing.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </>
           ) : (
-            "Submit Listing"
+            <Button
+              type="submit"
+              className="w-full bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+              disabled={isLoading || isSubmitting}
+            >
+              {isLoading || isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading Images & Submitting...
+                </>
+              ) : (
+                "Submit Listing"
+              )}
+            </Button>
           )}
-        </Button>
+        </div>
       </form>
     </div>
   )

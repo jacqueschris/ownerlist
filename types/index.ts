@@ -19,6 +19,8 @@ export interface DataContextType {
   getFavorites: (token: string, userId: string) => Promise<void>;
   removeFavourite: (propertyId: string) => Promise<void>;
   addFavourite: (propertyId: string) => Promise<void>;
+  updateProperty: (newProperty: Property) => Promise<void>;
+  deleteProperty: (propertyId: string) => Promise<void>;
 }
 
 export interface DisplayContextType {
