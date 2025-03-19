@@ -9,12 +9,7 @@ import { Heart } from 'lucide-react';
 import EmptyScreen from './empty-screen';
 
 export function FavoritesScreen() {
-  const { properties } = useDataContext();
-  const [favorites, setFavorites] = useState(properties!.filter((property) => property.isFavorite));
-
-  useEffect(() => {
-    setFavorites(properties!.filter((property) => property.isFavorite));
-  }, [properties]);
+  const { favourites } = useDataContext();
 
   return (
     <div className="flex flex-col h-screen">
@@ -22,8 +17,8 @@ export function FavoritesScreen() {
         <Header title="Favourites" />
 
         <div className="p-4">
-          {favorites && favorites.length > 0 ? (
-            <PropertyGrid properties={favorites} />
+          {favourites && favourites.length > 0 ? (
+            <PropertyGrid properties={favourites} />
           ) : (
             <EmptyScreen
               icon={<Heart className="h-6 w-6 text-muted-foreground" />}

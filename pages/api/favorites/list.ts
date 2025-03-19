@@ -37,7 +37,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Fetch favorites with owner details using $lookup
     const userId = Number(req.body.userId);
     const favorites = await favoritesCollection
-      .find({ userId }, { projection: { propertyId: 1 } })
+    
+      .aggregate([{ $match: { userId } }, {
+        $lookup: {
+          from: 'properties', // Collection to join with
+          localField: 'propertyId', // Field in properties collection
+          foreignField: 'id', // Field in users collection
+          as: 'property', // Output array field
+        },
+      },
+      { $unwind: { path: "$property", preserveNullAndEmptyArrays: true } },
+      {
+        $lookup: {
+          from: 'users', // Collection to join with
+          localField: 'property.owner', // Field in properties collection
+          foreignField: 'id', // Field in users collection
+          as: 'owner', // Output array field
+        },
+      },
+      { $unwind: { path: "$owner", preserveNullAndEmptyArrays: true } },
+      {$project: {
+        "_id": 0,
+        "property.id": 1,
+        "property.listingType": 1,
+        "property.propertyType": 1,
+        "property.price": 1,
+        "property.bedrooms": 1,
+        "property.bathrooms": 1,
+        "property.size": 1,
+        "property.location": 1,
+        "property.position": 1,
+        "property.description": 1,
+        "property.amenities": 1,
+        "property.availabilitySchedule": 1,
+        "property.images": 1,
+        "owner.id": 1,
+        "owner.name": 1,
+        "owner.username": 1,
+      }}])
       .toArray();
 
       

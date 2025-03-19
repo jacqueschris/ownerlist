@@ -12,6 +12,8 @@ export interface DataContextType {
   setDistance: React.Dispatch<React.SetStateAction<number>>;
   location: any;
   properties?: Property[];
+  favourites?: Property[];
+  favouritesIds?: string[];
   setProperties: React.Dispatch<React.SetStateAction<Property[] | undefined>>;
   getProperties: (token: string) => Promise<void>;
   getFavorites: (token: string, userId: string) => Promise<void>;

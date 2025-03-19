@@ -18,7 +18,7 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties }: PropertyGridProps) {
   const { setDisplay } = useDisplayContext();
-  const { data, setProperties } = useDataContext();
+  const { data, setProperties, favouritesIds } = useDataContext();
 
   const toggleFavorite = async (property: Property, e: React.MouseEvent) => {
     e.preventDefault();
@@ -84,7 +84,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
                 onClick={(e) => toggleFavorite(property, e)}>
                 <Heart
                   className={`h-5 w-5 ${
-                    property.isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                    favouritesIds?.includes(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'
                   }`}
                 />
               </button>

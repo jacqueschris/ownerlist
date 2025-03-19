@@ -17,7 +17,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [distance, setDistance] = useState<number>(30);
   const [properties, setProperties] = useState<Property[]>();
-
+  const [favourites, setFavorites] = useState<Property[]>();
+  const [favouritesIds, setFavoritesIds] = useState<string[]>();
   let { location } = useLocation();
 
   async function register(data: any, skipRegister: boolean) {
@@ -64,13 +65,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     try {
       let res = await axios.post(`/api/favorites/list`, { token, userId });
 
-      console.log(res.data);
       if (res.data.favorites) {
-        let favouritePropertyIds = res.data.favorites.map((favourite: any) => favourite.propertyId);
-        setProperties(properties => (
-          properties?.map(property => ({
-            ...property,
-            isFavorite: favouritePropertyIds.includes(property.id)
+        let favouritePropertyIds = res.data.favorites.map((favourite: any) => favourite.property.id);
+        setFavoritesIds(favouritePropertyIds)
+        setFavorites(properties => (
+          res.data.favorites?.map((property: any) => ({
+            ...property.property,
+            owner: {...property.owner},
           })) || []
         ));
       }
@@ -96,6 +97,8 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setProperties,
         getProperties,
         getFavorites,
+        favourites,
+        favouritesIds
       }}>
       {children}
     </DataContext.Provider>
