@@ -35,6 +35,12 @@ export function PropertyBooking({
         }}
         className="rounded-md border"
         disabled={(date) => {
+          // Check if date is in the past (before today)
+          const today = new Date()
+          today.setHours(0, 0, 0, 0) // Reset time to start of day for accurate comparison
+
+          if (date < today) return true
+
           if (!property.availabilitySchedule) return false
 
           const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]

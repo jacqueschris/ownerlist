@@ -61,7 +61,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const getProperties = async (token: string, filters: Filters) => {
     try {
       let res = await axios.post(`/api/property/list`, { token, filters });
-      setProperties(res.data.properties);
+      if (res.status === 200 && res.data.properties) {
+        setProperties(res.data.properties);
+      } else {
+        console.error('Error fetching properties:', res.data);
+      }
     } catch (error) {
       console.error(error);
     }
