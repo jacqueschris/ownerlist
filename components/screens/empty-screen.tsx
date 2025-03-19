@@ -8,7 +8,7 @@ interface EmptyScreenProps {
 
 export default function EmptyScreen({icon, title, description}: EmptyScreenProps) {
   return (
-    <Card className="border-dashed border-2 bg-background/50 mx-auto max-w-md">
+    <Card className="w-full border-dashed border-2 bg-background/50 mx-auto max-w-md">
       <CardContent className="flex flex-col items-center justify-center py-10 px-6">
         <div className="rounded-full bg-muted p-3 mb-4">
           {icon}

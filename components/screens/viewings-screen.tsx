@@ -11,20 +11,16 @@ import { useDisplayContext } from '@/contexts/Display';
 import { useDataContext } from '@/contexts/Data';
 import { OutgoingViewingsList } from '../viewings/outgoing-viewings-list';
 import { IncomingViewingsList } from '../viewings/incoming-viewings-list';
-import { EmptyViewingsState } from '../viewings/empty-viewings-state';
+import EmptyScreen from './empty-screen';
+import { Calendar } from 'lucide-react';
+import { HomeScreen } from './home-screen';
 
 export function ViewingsScreen() {
-  const [hasListings, setHasListings] = useState(true);
   const { incomingViewingRequests, outgoingViewingRequests } = useDataContext();
   const { setDisplay } = useDisplayContext();
 
-  useEffect(() => {
-    if (incomingViewingRequests) {
-      setHasListings(incomingViewingRequests.length > 0);
-    }
-  }, [incomingViewingRequests]);
   const goToHome = () => {
-    setDisplay(<Home />);
+    setDisplay(<HomeScreen />);
   };
 
   return (
@@ -33,42 +29,40 @@ export function ViewingsScreen() {
         <Header title="Viewing Requests"></Header>
 
         <div className="p-4">
-          <Tabs defaultValue={hasListings ? 'incoming' : 'outgoing'}>
+          <Tabs defaultValue="incoming">
             <TabsList className="grid grid-cols-2 mb-4">
-              {hasListings && <TabsTrigger value="incoming">Requests to You</TabsTrigger>}
-              <TabsTrigger value="outgoing" className={!hasListings ? 'col-span-2' : ''}>
-                Your Requests
-              </TabsTrigger>
+              <TabsTrigger value="incoming">Requests to You</TabsTrigger>
+              <TabsTrigger value="outgoing">Your Requests</TabsTrigger>
             </TabsList>
 
-            {hasListings && (
-              <TabsContent value="incoming" className="space-y-4">
-                {incomingViewingRequests && incomingViewingRequests.length > 0 ? (
-                  <IncomingViewingsList requests={incomingViewingRequests} />
-                ) : (
-                  <EmptyViewingsState
-                    type="incoming"
-                    message="No viewing requests for your properties yet"
-                  />
-                )}
-              </TabsContent>
-            )}
+            <TabsContent value="incoming" className="space-y-4">
+              {incomingViewingRequests && incomingViewingRequests.length > 0 ? (
+                <IncomingViewingsList requests={incomingViewingRequests} />
+              ) : (
+                <EmptyScreen
+                  icon={<Calendar />}
+                  title="No Incoming Requests"
+                  description="You haven't received any property viewing requests yet."
+                />
+              )}
+            </TabsContent>
 
             <TabsContent value="outgoing" className="space-y-4">
               {outgoingViewingRequests && outgoingViewingRequests.length > 0 ? (
                 <OutgoingViewingsList />
               ) : (
-                <EmptyViewingsState
-                  type="outgoing"
-                  message="You haven't requested any property viewings yet"
-                  actionButton={
-                    <Button
-                      className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-                      onClick={goToHome}>
-                      Browse Properties
-                    </Button>
-                  }
-                />
+                <div className='flex flex-col items-center'>
+                  <EmptyScreen
+                    icon={<Calendar />}
+                    title="No Outgoing Requests"
+                    description="You haven't requested any property viewings yet."
+                  />
+                  <Button
+                    className="mt-4 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
+                    onClick={goToHome}>
+                    Browse Properties
+                  </Button>
+                </div>
               )}
             </TabsContent>
           </Tabs>
