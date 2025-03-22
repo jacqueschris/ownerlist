@@ -36,6 +36,8 @@ export function ViewingsScreen() {
               description="Please be patient while we load your data"
             />
           </div>
+
+          <BottomNavigation />
         </div>
       </div>
     );

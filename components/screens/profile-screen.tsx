@@ -3,7 +3,7 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { BottomNavigation } from "../bottom-navigation"
-import { Bell, ChevronRight, Home, LoaderCircle, Plus, Search, Trash, User, Volume2, VolumeOff, X } from "lucide-react"
+import { Bell, ChevronDown, ChevronRight, ChevronUp, Home, LoaderCircle, Plus, Search, Trash, User, Volume2, VolumeOff, X } from "lucide-react"
 import { useDataContext } from "@/contexts/Data"
 import Header from "../header"
 import { AddPropertyScreen } from "./add-property-screen"
@@ -16,13 +16,16 @@ import { useState } from "react"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import EmptyScreen from "./empty-screen"
 import { toast } from "../ui/use-toast"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion"
+import { Badge } from "../ui/badge"
+import { capitalizeFirstLetter, formatNumberWithCommas } from "../lib/utils"
 
 export function ProfileScreen() {
   const { setDisplay } = useDisplayContext();
   const { tgData, listings, updateProperty, isLoading, addSearchAlert, searchAlerts, updateSearchAlert, deleteSearchAlert } = useDataContext();
 
   const [openSearchAlertDialog, setOpenSearchAlertDialog] = useState<boolean>(false);
-
+  const [openAlert, setOpenAlert] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<Filters>({
     listingType: 'all',
@@ -151,6 +154,7 @@ export function ProfileScreen() {
               description="Please be patient while we load your data"
             />
           </div>
+          <BottomNavigation />
         </div>
       </div>
     );
@@ -237,34 +241,131 @@ export function ProfileScreen() {
 
             <TabsContent value="searches" className="space-y-4">
               {searchAlerts.length > 0 ? (
-                searchAlerts.map((search: SearchAlert) => (
-                  <Card key={search.id}>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-medium">{search.name}</h3>
-                          {/* <p className="text-sm text-gray-500 mt-1">
-                            {Object.entries(search.criteria)
-                              .map(([key, value]) => `${key}: ${value}`)
-                              .join(", ")}
-                          </p> */}
-                        </div>
-                        <div className="flex">
-                        <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
-                        { search.active ?  <VolumeOff className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, false)}/> :
-                         <Volume2 className="h-5 w-5 text-gray-400"  onClick={() => toggleAlert(search.id, true)}/>}
-                        </div>
-                        <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
-                        <Trash className="h-5 w-5 text-gray-400"  onClick={() => deleteAlert(search.id)}/>
-                        </div>
-                        </div>
-                        
-                       
-                       
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
+                <Accordion type="single" collapsible value={openAlert ?? undefined}
+                  onValueChange={(val) => setOpenAlert(val || null)}>
+                  {searchAlerts.map((search: SearchAlert) => (
+                    <Card key={search.id}>
+                      <CardContent className="p-4">
+                        <AccordionItem value={search.id}>
+
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="font-medium">{search.name}</h3>
+                            </div>
+                            <div className="flex">
+                              <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
+                                {search.active ? <VolumeOff className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, false)} /> :
+                                  <Volume2 className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, true)} />}
+                              </div>
+                              <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
+                                <Trash className="h-5 w-5 text-gray-400" onClick={() => deleteAlert(search.id)} />
+                              </div>
+                              <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer">
+                                {openAlert === search.id ? <ChevronUp onClick={() => setOpenAlert(null)} /> : <ChevronDown onClick={() => setOpenAlert(search.id)} />}
+                              </div>
+                            </div>
+                          </div>
+
+                          <AccordionContent>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+                              <div>
+                                <p className="text-sm my-auto ml-0 mr-2">Listing Type</p>
+                                <div>
+                                  <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{capitalizeFirstLetter(search.filters.listingType)}</Badge>
+                                </div>
+                              </div>
+
+                              {search.filters.propertyType.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Property Type</p>
+                                  <div>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{capitalizeFirstLetter(search.filters.propertyType)}</Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {search.filters.bedrooms.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Bedrooms</p>
+                                  <div>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bedrooms.length > 0 ? search.filters.bedrooms.length : "Any"}</Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {search.filters.bathrooms.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Bathrooms</p>
+                                  <div>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bathrooms.length > 0 ? search.filters.bathrooms.length : "Any"}</Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {search.filters.amenities.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Amenities</p>
+                                  <div className="flex">
+                                    {
+                                      search.filters.amenities.map((amenity) => (
+                                        <div>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{amenity}</Badge>
+                                        </div>
+                                      ))
+                                    }
+                                  </div>
+
+                                </div>
+                              )}
+
+                              {search.filters.locality.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Localities</p>
+                                  <div className="flex">
+                                    {
+                                      search.filters.locality.map((locality) => (
+                                        <div>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{locality}</Badge>
+                                        </div>
+                                      ))
+                                    }
+                                  </div>
+
+                                </div>
+                              )}
+
+                              <div>
+                                <p className="text-sm my-auto ml-0 mr-2">Size</p>
+                                <div>
+                                  <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{`${search.filters.size[0]} - ${search.filters.size[1]} metres squared`}</Badge>
+                                </div>
+                              </div>
+
+                              <div>
+                                <p className="text-sm my-auto ml-0 mr-2">Price</p>
+                                <div>
+                                  <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{`€${formatNumberWithCommas(search.filters.priceRange[0])} - €${formatNumberWithCommas(search.filters.priceRange[1])}`}</Badge>
+                                </div>
+                              </div>
+
+                            </div>
+
+                          </AccordionContent>
+                        </AccordionItem>
+                      </CardContent>
+
+                    </Card>
+
+
+                  ))
+
+                  }
+
+
+                </Accordion>
+
+
               ) : (
                 <div className="w-full flex flex-col items-center">
                   <EmptyScreen
