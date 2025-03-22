@@ -5,6 +5,7 @@ import {
   DataContextType, Filters, Property, IncomingViewing,
   OutgoingViewing,
   Viewing,
+  SearchAlert,
 } from '@/types';
 
 // Create the context with a default value
@@ -23,6 +24,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [properties, setProperties] = useState<Property[]>();
   const [favourites, setFavorites] = useState<Property[]>();
   const [listings, setListings] = useState<Property[]>();
+  const [searchAlerts, setSearchAlerts] = useState<SearchAlert[]>([]);
   const [favouritesIds, setFavoritesIds] = useState<string[]>();
   const [incomingViewingRequests, setIncomingViewingRequests] = useState<IncomingViewing[]>();
   const [outgoingViewingRequests, setOutgoingViewingRequests] = useState<OutgoingViewing[]>();
@@ -52,16 +54,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   }
 
   async function getUserData() {
-    setIsLoading(true);
     let res = await axios.post('/api/user', { token: window.Telegram.WebApp.initData });
     setData(res.data.user);
-    setIsLoading(false);
   }
 
   async function buy() {
-    setIsLoading(true);
     let res = await axios.post('/api/payments/subscribe', {});
-    setIsLoading(false);
     return res.data.invoiceLink;
   }
 
@@ -213,6 +211,37 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     }
   };
 
+  const getSearchAlerts = async (token: string) => {
+    try {
+      let res = await axios.get(`/api/alert/list`, {
+        params: { token },
+      });
+
+      setSearchAlerts(res.data.searches)
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const addSearchAlert = async (searchAlert: SearchAlert) => {
+    let newSearchAlerts = [...(searchAlerts || []), searchAlert] 
+    setSearchAlerts(newSearchAlerts)
+  };
+
+  const deleteSearchAlert = async (searchAlertId: string) => {
+    let newSearchAlerts = searchAlerts?.filter((searchAlert: any) => searchAlert.id != searchAlertId)
+    setSearchAlerts(newSearchAlerts)
+  };
+  
+  const updateSearchAlert = async(newSearchAlert: SearchAlert) => {
+    let index = searchAlerts?.findIndex((searchAlert: SearchAlert) => searchAlert.id == newSearchAlert.id)
+
+    let newSearchAlerts = [...searchAlerts!]
+    newSearchAlerts[index!] = newSearchAlert
+    setSearchAlerts(newSearchAlerts)
+  }
+  
+
   return (
     <DataContext.Provider
       value={{
@@ -243,7 +272,13 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
         setOutgoingViewingRequests,
         listings,
         getListings,
-        newListing
+        newListing,
+        addSearchAlert,
+        deleteSearchAlert,
+        updateSearchAlert,
+        getSearchAlerts,
+        searchAlerts,
+        setIsLoading
       }}>
       {children}
     </DataContext.Provider>

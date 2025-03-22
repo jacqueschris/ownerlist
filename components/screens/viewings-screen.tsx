@@ -12,16 +12,35 @@ import { useDataContext } from '@/contexts/Data';
 import { OutgoingViewingsList } from '../viewings/outgoing-viewings-list';
 import { IncomingViewingsList } from '../viewings/incoming-viewings-list';
 import EmptyScreen from './empty-screen';
-import { Calendar } from 'lucide-react';
+import { Calendar, LoaderCircle } from 'lucide-react';
 import { HomeScreen } from './home-screen';
 
 export function ViewingsScreen() {
-  const { incomingViewingRequests, outgoingViewingRequests } = useDataContext();
+  const { incomingViewingRequests, outgoingViewingRequests, isLoading } = useDataContext();
   const { setDisplay } = useDisplayContext();
 
   const goToHome = () => {
     setDisplay(<HomeScreen />);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 overflow-auto pb-16">
+          <Header title="Viewings" />
+
+          <div className="p-4">
+            <EmptyScreen
+              icon={<LoaderCircle className="loader-circle h-6 w-6 text-muted-foreground" />}
+              title="Loading..."
+              description="Please be patient while we load your data"
+            />
+          </div>
+        </div>
+      </div>
+    );
+
+  }
 
   return (
     <div className="flex flex-col h-screen">

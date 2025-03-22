@@ -3,11 +3,11 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { BottomNavigation } from "../bottom-navigation"
-import { Bell, ChevronRight, Home, Plus, Search, User, X } from "lucide-react"
+import { Bell, ChevronRight, Home, LoaderCircle, Plus, Search, Trash, User, Volume2, VolumeOff, X } from "lucide-react"
 import { useDataContext } from "@/contexts/Data"
 import Header from "../header"
 import { AddPropertyScreen } from "./add-property-screen"
-import { Filters, Property } from "@/types"
+import { Filters, Property, SearchAlert } from "@/types"
 import { useDisplayContext } from "@/contexts/Display"
 import { Switch } from "../ui/switch"
 import axios from "axios"
@@ -15,10 +15,11 @@ import { PropertyFilters } from "../property-filters"
 import { useState } from "react"
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import EmptyScreen from "./empty-screen"
+import { toast } from "../ui/use-toast"
 
 export function ProfileScreen() {
   const { setDisplay } = useDisplayContext();
-  const { tgData, listings, updateProperty, isLoading } = useDataContext();
+  const { tgData, listings, updateProperty, isLoading, addSearchAlert, searchAlerts, updateSearchAlert, deleteSearchAlert } = useDataContext();
 
   const [openSearchAlertDialog, setOpenSearchAlertDialog] = useState<boolean>(false);
 
@@ -33,31 +34,6 @@ export function ProfileScreen() {
     amenities: [],
     locality: []
   });
-
-  // Mock data for saved searches
-  // const savedSearches = [
-  //   {
-  //     id: "201",
-  //     name: "2BR Apartments in Downtown",
-  //     criteria: {
-  //       type: "Apartment",
-  //       bedrooms: 2,
-  //       location: "Downtown",
-  //       maxPrice: 300000,
-  //     },
-  //   },
-  //   {
-  //     id: "202",
-  //     name: "Houses for Rent",
-  //     criteria: {
-  //       type: "House",
-  //       listingType: "rent",
-  //       maxPrice: 2000,
-  //     },
-  //   },
-  // ]
-
-  const savedSearches: any = [];
 
   const addNewProperty = () => {
     setDisplay(<AddPropertyScreen />)
@@ -82,6 +58,103 @@ export function ProfileScreen() {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  const handleCreateSearchAlert = async (newFilters: Filters, searchAlertName?: string) => {
+    try {
+      let res = await axios.post(`/api/alert/create`, { token: window.Telegram.WebApp.initData, filters: newFilters, name: searchAlertName });
+      debugger
+      if (res.status === 200 && res.data.search) {
+        addSearchAlert(res.data.search);
+        toast({
+          title: 'Search Alert Created',
+          description: 'The search alert was created successfully',
+          variant: 'default',
+        });
+      } else {
+        console.error('Error creating alert:', res.data);
+        toast({
+          title: 'Your search alert was not created',
+          description: 'The search alert was not created successfully, please try again',
+          variant: 'destructive',
+        });
+      }
+      setOpenSearchAlertDialog(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const toggleAlert = async (alertId: string, active: boolean) => {
+    try {
+      let res = await axios.patch(`/api/alert/toggle`, { token: window.Telegram.WebApp.initData, searchId: alertId, active: active });
+      if (res.status === 200) {
+        let newSearchAlert = searchAlerts?.find((searchAlert: SearchAlert) => searchAlert.id == alertId)
+        newSearchAlert!.active = active
+        updateSearchAlert(newSearchAlert!);
+        toast({
+          title: active ? 'Search Alert Turned On' : 'Search Alert Turned Off',
+          description: active ? 'The search alert was turned on successfully' : 'The search alert was turned off successfully',
+          variant: 'default',
+        });
+      } else {
+        console.error('Error toggling alert:', res.data);
+        toast({
+          title: active ? 'Your search alert was not turned on' : 'Your search alert was not turned off',
+          description: active ? 'The search alert was not turned on successfully, please try again' : 'The search alert was not turned off successfully, please try again',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const deleteAlert = async (alertId: string) => {
+    try {
+      const res = await axios.delete('/api/alert/delete', {
+        data: {
+          token: window.Telegram.WebApp.initData,
+          searchId: alertId,
+        },
+      });
+      if (res.status === 200) {
+        deleteSearchAlert(alertId);
+        toast({
+          title: 'Search Alert Deleted',
+          description: 'The search alert was deleted successfully',
+          variant: 'default',
+        });
+      } else {
+        console.error('Error deleting alert:', res.data);
+        toast({
+          title: 'Your search alert was not deleted',
+          description: 'The search alert was not deleted successfully, please try again',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 overflow-auto pb-16">
+          <Header title="Profile" />
+
+          <div className="p-4">
+            <EmptyScreen
+              icon={<LoaderCircle className="loader-circle h-6 w-6 text-muted-foreground" />}
+              title="Loading..."
+              description="Please be patient while we load your data"
+            />
+          </div>
+        </div>
+      </div>
+    );
+
   }
 
   return (
@@ -163,20 +236,31 @@ export function ProfileScreen() {
             </TabsContent>
 
             <TabsContent value="searches" className="space-y-4">
-              {savedSearches.length > 0 ? (
-                savedSearches.map((search: any) => (
+              {searchAlerts.length > 0 ? (
+                searchAlerts.map((search: SearchAlert) => (
                   <Card key={search.id}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-center">
                         <div>
                           <h3 className="font-medium">{search.name}</h3>
-                          <p className="text-sm text-gray-500 mt-1">
+                          {/* <p className="text-sm text-gray-500 mt-1">
                             {Object.entries(search.criteria)
                               .map(([key, value]) => `${key}: ${value}`)
                               .join(", ")}
-                          </p>
+                          </p> */}
                         </div>
-                        <Bell className="h-5 w-5 text-gray-400" />
+                        <div className="flex">
+                        <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
+                        { search.active ?  <VolumeOff className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, false)}/> :
+                         <Volume2 className="h-5 w-5 text-gray-400"  onClick={() => toggleAlert(search.id, true)}/>}
+                        </div>
+                        <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
+                        <Trash className="h-5 w-5 text-gray-400"  onClick={() => deleteAlert(search.id)}/>
+                        </div>
+                        </div>
+                        
+                       
+                       
                       </div>
                     </CardContent>
                   </Card>
@@ -198,18 +282,18 @@ export function ProfileScreen() {
               <AlertDialog open={openSearchAlertDialog}>
                 <AlertDialogTrigger asChild>
                   {
-                    savedSearches.length > 0 && 
-                    <Button variant="outline" size="sm" className="w-full mt-1 bg-yellow text-blue" disabled={isLoading}>
-                    <Plus className="h-3 w-3 mr-1" /> Add New Search Alert
-                  </Button>
+                    searchAlerts.length > 0 &&
+                    <Button variant="outline" size="sm" className="w-full mt-1 bg-yellow text-blue" disabled={isLoading} onClick={() => setOpenSearchAlertDialog(true)}>
+                      <Plus className="h-3 w-3 mr-1" /> Add New Search Alert
+                    </Button>
                   }
-                  
+
                 </AlertDialogTrigger>
                 <AlertDialogContent className="sm:max-w-[425px]">
                   <div className="overflow-auto">
                     <h1 className="text-lg text-center font-bold mb-3">Create a new search alert</h1>
                     <h2 className="text-sm text-center">You will be notified whenever a new property matching this search criteria is listed</h2>
-                    <PropertyFilters alertCreation={true} initialFilters={filters} ></PropertyFilters>
+                    <PropertyFilters alertCreation={true} initialFilters={filters} onApply={handleCreateSearchAlert} ></PropertyFilters>
                     <Button className="absolute top-4 right-4 bg-gray/10 text-blue hover:bg-gray/40 hover:text-blue" onClick={() => setOpenSearchAlertDialog(false)}>
                       <X className="h-5 w-5" />
                     </Button>

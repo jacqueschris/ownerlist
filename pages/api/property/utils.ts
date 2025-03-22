@@ -89,3 +89,12 @@ export async function getNextPropertyIndex() {
 
     return counter?.index;
 }
+
+export async function getCurrentPropertyIndex() {
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME);
+    
+    const counter = await db.collection("counters").findOne({ _id: "property_index" as unknown as ObjectId });
+
+    return counter?.index ?? 0; // Return 0 if no index exists
+}

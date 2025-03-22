@@ -10,6 +10,7 @@ export interface DataContextType {
   getUserData: (id: string) => Promise<any>;
   distance: number;
   setDistance: React.Dispatch<React.SetStateAction<number>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   location: any;
   properties?: Property[];
   listings?: Property[];
@@ -29,6 +30,11 @@ export interface DataContextType {
   outgoingViewingRequests: OutgoingViewing[] | undefined;
   setOutgoingViewingRequests: React.Dispatch<React.SetStateAction<OutgoingViewing[] | undefined>>;
   newListing: (property: Property) => Promise<void>;
+  addSearchAlert: (searchAlert: SearchAlert) => Promise<void>;
+  deleteSearchAlert: (searchAlertId: string) => Promise<void>;
+  updateSearchAlert: (newSearchAlert: SearchAlert) => Promise<void>;
+  getSearchAlerts: (token: string) => Promise<void>;
+  searchAlerts: SearchAlert[]
 }
 
 export interface DisplayContextType {
@@ -96,6 +102,15 @@ export interface Filters {
   size: [number, number];
   amenities: string[];
   locality: string[];
+}
+
+export interface SearchAlert {
+  id: string;
+  name: string;
+  userId: boolean;
+  filters: Filters;
+  active: boolean;
+  createdAt: number;
 }
 
 export interface Viewing {

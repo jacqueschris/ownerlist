@@ -13,10 +13,11 @@ import { useDataContext } from '@/contexts/Data';
 import { Filters } from '@/types';
 import Header from '../header';
 import EmptyScreen from './empty-screen';
+import axios from 'axios';
 
 export function HomeScreen() {
   const { setDisplay, showAddPropertyButton, setShowAddPropertyButton } = useDisplayContext();
-  const { properties, getProperties } = useDataContext();
+  const { properties, getProperties, addSearchAlert, isLoading } = useDataContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [propertiesLoading, setPropertiesLoading] = useState(false);
@@ -69,6 +70,14 @@ export function HomeScreen() {
         </div>
       </div>
     );
+  }
+
+  if(isLoading) {
+    <EmptyScreen
+    icon={<LoaderCircle className="loader-circle h-6 w-6 text-muted-foreground" />}
+    title="Loading..."
+    description="Please be patient while we load your data"
+  />
   }
 
   const handleResetFilters = () => {

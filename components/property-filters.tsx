@@ -12,10 +12,13 @@ import { Filters } from '@/types/index';
 import { LocalitiesSelect } from './localities-select';
 import { useDataContext } from '@/contexts/Data';
 import { AlertDialogCancel } from './ui/alert-dialog';
+import axios from 'axios';
+import { a } from 'framer-motion/dist/types.d-B50aGbjN';
+import { Input } from './ui/input';
 
 interface PropertyFiltersProps {
   onClose?: () => void;
-  onApply?: (filters: Filters) => void;
+  onApply?: (filters: Filters, searchAlertName?: string) => void;
   onReset?: () => void;
   initialFilters: Filters;
   alertCreation?: boolean
@@ -38,8 +41,9 @@ export function PropertyFilters({
   const [bathrooms, setBathrooms] = useState(initialFilters.bathrooms);
   const [size, setSize] = useState<[number, number]>(initialFilters.size);
   const [amenities, setAmenities] = useState<string[]>(initialFilters.amenities);
+  const [title, setTitle] = useState<string>("");
 
-  const { properties } = useDataContext();
+  const { properties, addSearchAlert } = useDataContext();
 
   // Update local state when initialFilters change
   useEffect(() => {
@@ -83,8 +87,19 @@ export function PropertyFilters({
     }
   };
 
-  const addSearchAlert = () => {
-
+  const submitSearchAlert = async() => {
+    if(onApply){
+      onApply({
+        listingType,
+        priceRange,
+        propertyType,
+        bedrooms,
+        bathrooms,
+        size,
+        amenities,
+        locality
+      }, title);
+    }
   }
 
   return (
@@ -99,7 +114,21 @@ export function PropertyFilters({
        
       </div>
        )}
+
+       
       <div className="space-y-6">
+      { alertCreation && (
+         <div>
+         <Label htmlFor="name">Name</Label>
+         <Input
+           id="title"
+           value={title}
+           onChange={(e) => setTitle(e.target.value)}
+           placeholder="e.g. Terraced House search"
+           className="mt-1"
+         />
+       </div>
+       )}
         <ButtonToggle
           id="listing-type"
           label="Listing Type"
@@ -237,7 +266,7 @@ export function PropertyFilters({
           
           <Button
             className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]"
-            onClick={addSearchAlert}>
+            onClick={submitSearchAlert}>
             Save Search
           </Button>
           : 
