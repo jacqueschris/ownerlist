@@ -144,7 +144,7 @@ export function PropertyFilters({
           <h4 className="font-medium mb-2">Price Range</h4>
           <Slider
             defaultValue={priceRange}
-            max={1000000}
+            max={100000000}
             step={1000}
             onValueChange={(value) => setPriceRange(value as [number, number])}
           />
@@ -220,7 +220,7 @@ export function PropertyFilters({
 
           <Slider
             defaultValue={size}
-            max={500}
+            max={10000}
             step={10}
             onValueChange={(value) => setSize(value as [number, number])}
           />

@@ -25,11 +25,11 @@ export function HomeScreen() {
   // Initialize filters with default values
   const [filters, setFilters] = useState<Filters>({
     listingType: 'all',
-    priceRange: [0, 1000000],
+    priceRange: [0, 100000000],
     propertyType: '',
     bedrooms: '',
     bathrooms: '',
-    size: [0, 500],
+    size: [0, 10000],
     amenities: [],
     locality: []
   });
@@ -83,11 +83,11 @@ export function HomeScreen() {
   const handleResetFilters = () => {
     setFilters({
       listingType: 'all',
-      priceRange: [0, 1000000],
+      priceRange: [0, 100000000],
       propertyType: '',
       bedrooms: '',
       bathrooms: '',
-      size: [0, 500],
+      size: [0, 10000],
       amenities: [],
       locality: []
     });
