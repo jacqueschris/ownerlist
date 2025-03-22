@@ -12,3 +12,7 @@ export function formatNumberWithCommas(number: number) {
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function getTimestampDaysFromNow(days: number) {
+  return Math.floor(Date.now() / 1000) + days * 86400;
+}

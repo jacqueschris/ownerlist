@@ -141,6 +141,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             availabilitySchedule: 1,
             carSpaces: 1,
             images: 1,
+            activeUntil: 1,
             'owner.id': '$ownerDetails.id',
             'owner.name': '$ownerDetails.name',
             'owner.username': '$ownerDetails.username',

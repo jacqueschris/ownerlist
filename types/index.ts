@@ -90,6 +90,7 @@ export interface Property {
   carSpaces: CarSpace[];
   availabilitySchedule: DayAvailability[];
   listingType: 'buy' | 'rent';
+  activeUntil: number;
 }
 
 // Define a type for the filters

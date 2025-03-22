@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { PropertySchema } from "@/models/property";
 import { readFileSync, rename } from "fs";
 import { getNextPropertyIndex, parseForm, saveFiles } from "./utils";
+import { getTimestampDaysFromNow } from "@/components/lib/utils";
 
 // Disable default body parser to handle FormData
 export const config = {
@@ -64,6 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     propertyData.active = true;
     propertyData.id = uuidv4();
     propertyData.index = await getNextPropertyIndex();
+    propertyData.activeUntil = getTimestampDaysFromNow(7)
 
     // Validate property data
     const result = PropertySchema.safeParse(propertyData);

@@ -72,6 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         "property.amenities": 1,
         "property.availabilitySchedule": 1,
         "property.images": 1,
+        "property.activeUntil": 1,
         "owner.id": 1,
         "owner.name": 1,
         "owner.username": 1,

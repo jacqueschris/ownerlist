@@ -216,8 +216,8 @@ export function ProfileScreen() {
                           <div className="flex mt-3">
                             <label className="mr-3">Active: </label>
                             <Switch checked={listing.active} onCheckedChange={() => handleListingVisibilityChange(listing)}></Switch>
-
                           </div>
+                          <p className="text-sm text-gray-500 mt-2">{`Active until: ${new Date(listing.activeUntil*1000).toLocaleString()}`}</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-gray-400" onClick={() => goToProperty(listing)} />
                       </div>
