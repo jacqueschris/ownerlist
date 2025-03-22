@@ -280,11 +280,11 @@ export function ProfileScreen() {
                               {search.filters.propertyType.length > 0 && (
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Amenities</p>
-                                  <div className="flex">
+                                  <div className="flex flex-wrap">
                                     {
                                       search.filters.propertyType.map((type) => (
                                         <div>
-                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{type}</Badge>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm mr-2">{type}</Badge>
                                         </div>
                                       ))
                                     }
@@ -297,7 +297,7 @@ export function ProfileScreen() {
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Bedrooms</p>
                                   <div>
-                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bedrooms.length > 0 ? search.filters.bedrooms.length : "Any"}</Badge>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bedrooms.length > 0 ? search.filters.bedrooms : "Any"}</Badge>
                                   </div>
                                 </div>
                               )}
@@ -306,7 +306,7 @@ export function ProfileScreen() {
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Bathrooms</p>
                                   <div>
-                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bathrooms.length > 0 ? search.filters.bathrooms.length : "Any"}</Badge>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bathrooms.length > 0 ? search.filters.bathrooms : "Any"}</Badge>
                                   </div>
                                 </div>
                               )}
@@ -315,7 +315,7 @@ export function ProfileScreen() {
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Garage/Car Spaces Capacity</p>
                                   <div>
-                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.garageSpaces.length > 0 ? search.filters.bathrooms.length : "Any"}</Badge>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.garageSpaces.length > 0 ? search.filters.bathrooms : "Any"}</Badge>
                                   </div>
                                 </div>
                               )}
@@ -323,11 +323,11 @@ export function ProfileScreen() {
                               {search.filters.amenities.length > 0 && (
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Amenities</p>
-                                  <div className="flex">
+                                  <div className="flex flex-wrap">
                                     {
                                       search.filters.amenities.map((amenity) => (
                                         <div>
-                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{amenity}</Badge>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm mr-2">{amenity}</Badge>
                                         </div>
                                       ))
                                     }
@@ -339,11 +339,11 @@ export function ProfileScreen() {
                               {search.filters.locality.length > 0 && (
                                 <div>
                                   <p className="text-sm my-auto ml-0 mr-2">Localities</p>
-                                  <div className="flex">
+                                  <div className="flex flex-wrap">
                                     {
                                       search.filters.locality.map((locality) => (
                                         <div>
-                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{locality}</Badge>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm mr-2">{locality}</Badge>
                                         </div>
                                       ))
                                     }
