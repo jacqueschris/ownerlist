@@ -30,7 +30,8 @@ export function ProfileScreen() {
   const [filters, setFilters] = useState<Filters>({
     listingType: 'all',
     priceRange: [0, 100000000],
-    propertyType: '',
+    propertyType: [],
+    garageSpaces: '',
     bedrooms: '',
     bathrooms: '',
     size: [0, 10000],
@@ -278,10 +279,17 @@ export function ProfileScreen() {
 
                               {search.filters.propertyType.length > 0 && (
                                 <div>
-                                  <p className="text-sm my-auto ml-0 mr-2">Property Type</p>
-                                  <div>
-                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{capitalizeFirstLetter(search.filters.propertyType)}</Badge>
+                                  <p className="text-sm my-auto ml-0 mr-2">Amenities</p>
+                                  <div className="flex">
+                                    {
+                                      search.filters.propertyType.map((type) => (
+                                        <div>
+                                          <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{type}</Badge>
+                                        </div>
+                                      ))
+                                    }
                                   </div>
+
                                 </div>
                               )}
 
@@ -299,6 +307,15 @@ export function ProfileScreen() {
                                   <p className="text-sm my-auto ml-0 mr-2">Bathrooms</p>
                                   <div>
                                     <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.bathrooms.length > 0 ? search.filters.bathrooms.length : "Any"}</Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {search.filters.garageSpaces.length > 0 && (
+                                <div>
+                                  <p className="text-sm my-auto ml-0 mr-2">Garage/Car Spaces Capacity</p>
+                                  <div>
+                                    <Badge className="bg-blue text-yellow py-1 px-3 mt-2 text-sm">{search.filters.garageSpaces.length > 0 ? search.filters.bathrooms.length : "Any"}</Badge>
                                   </div>
                                 </div>
                               )}

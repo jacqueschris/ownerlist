@@ -96,11 +96,12 @@ export interface Property {
 export interface Filters {
   listingType: 'buy' | 'rent' | 'all';
   priceRange: [number, number];
-  propertyType: string;
+  propertyType: string[];
   bedrooms: string;
   bathrooms: string;
   size: [number, number];
   amenities: string[];
+  garageSpaces: string;
   locality: string[];
 }
 

@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     // Get filter parameters from request body
-    const { listingType, priceRange, propertyType, bedrooms, bathrooms, size, amenities } =
+    const { listingType, priceRange, propertyType, bedrooms, bathrooms, size, amenities, locality, garageSpaces } =
       req.body.filters;
 
     // Build query filters
@@ -47,8 +47,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     // Add propertyType filter
-    if (propertyType && propertyType !== 'all') {
-      filters.propertyType = propertyType;
+    if (propertyType && propertyType.length > 0) {
+      filters.propertyType = { $in: propertyType };
+    }
+
+    // Add locality filter
+    if (locality && locality.length > 0) {
+      filters.locality = { $in: locality };
     }
 
     // Add bedrooms filter (exact match or minimum)
@@ -66,6 +71,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         filters.bathrooms = { $gte: 3 };
       } else {
         filters.bathrooms = parseInt(bathrooms);
+      }
+    }
+
+    if (garageSpaces) {
+      if (garageSpaces === '10+') {
+        filters.totalCarSpaces = { $gte: 10 };
+      } else {
+        filters.totalCarSpaces = parseInt(garageSpaces);
       }
     }
 
@@ -94,6 +107,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     // Fetch properties with owner details
     const properties = await propertiesCollection
       .aggregate([
+        {
+          $addFields: {
+            totalCarSpaces: { $sum: "$carSpaces.capacity" }
+          }
+        },
         { $match: filters },
         {
           $lookup: {

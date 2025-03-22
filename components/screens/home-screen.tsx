@@ -26,11 +26,12 @@ export function HomeScreen() {
   const [filters, setFilters] = useState<Filters>({
     listingType: 'all',
     priceRange: [0, 100000000],
-    propertyType: '',
+    propertyType: [],
     bedrooms: '',
     bathrooms: '',
     size: [0, 10000],
     amenities: [],
+    garageSpaces: '',
     locality: []
   });
 
@@ -84,9 +85,10 @@ export function HomeScreen() {
     setFilters({
       listingType: 'all',
       priceRange: [0, 100000000],
-      propertyType: '',
+      propertyType: [],
       bedrooms: '',
       bathrooms: '',
+      garageSpaces: '',
       size: [0, 10000],
       amenities: [],
       locality: []
