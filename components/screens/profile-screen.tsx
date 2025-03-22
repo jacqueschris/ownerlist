@@ -371,15 +371,9 @@ export function ProfileScreen() {
                           </AccordionContent>
                         </AccordionItem>
                       </CardContent>
-
                     </Card>
-
-
                   ))
-
                   }
-
-
                 </Accordion>
 
 

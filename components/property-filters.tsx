@@ -39,6 +39,7 @@ export function PropertyFilters({
   const [size, setSize] = useState<[number, number]>(initialFilters.size)
   const [amenities, setAmenities] = useState<string[]>(initialFilters.amenities)
   const [title, setTitle] = useState<string>("")
+  const [createAlertError, setCreateAlertError] = useState<string>("")
 
   const { properties, addSearchAlert } = useDataContext()
 
@@ -86,6 +87,11 @@ export function PropertyFilters({
   }
 
   const submitSearchAlert = async () => {
+
+    if(title.length == 0) {
+      setCreateAlertError("Missing name for search alert")
+      return
+    }
     if (onApply) {
       onApply(
         {
@@ -274,9 +280,12 @@ export function PropertyFilters({
           )}
 
           {alertCreation ? (
-            <Button className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={submitSearchAlert}>
-              Save Search
-            </Button>
+            <div className="w-full">
+              {createAlertError && <p className="text-sm text-red-500 text-center mb-4">{createAlertError}</p>}
+              <Button className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426] w-full" onClick={submitSearchAlert}>
+                Save Search
+              </Button>
+            </div>
           ) : (
             <Button className="flex-1 bg-[#F8F32B] text-black hover:bg-[#e9e426]" onClick={handleApply}>
               {properties ? "Apply Filters" : "Search for properties"}
