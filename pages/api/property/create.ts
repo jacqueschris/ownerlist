@@ -54,7 +54,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     console.log("Property Data:", propertyData);
-
+  
+    if(files.length > 3){
+      return res.status(400).json({ error: "You can only upload a maximum of 3 images per property" });
+    }
     // Save uploaded files and attach to property data
     let imagePaths;
     if (files){
@@ -66,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     propertyData.id = uuidv4();
     propertyData.index = await getNextPropertyIndex();
     propertyData.activeUntil = getTimestampDaysFromNow(7)
+    propertyData.createdAt = Math.floor(Date.now() / 1000)
 
     // Validate property data
     const result = PropertySchema.safeParse(propertyData);

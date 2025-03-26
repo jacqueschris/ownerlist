@@ -42,4 +42,5 @@ export const PropertySchema = z.object({
   availabilitySchedule: z.array(DayAvailabilitySchema),
   listingType: z.enum(["buy", "rent"]),
   activeUntil: z.number(),
+  createdAt: z.number(),
 });

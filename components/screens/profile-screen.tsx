@@ -3,7 +3,7 @@ import { Button } from "../ui/button"
 import { Card, CardContent } from "../ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { BottomNavigation } from "../bottom-navigation"
-import { Bell, ChevronDown, ChevronRight, ChevronUp, Home, LoaderCircle, Plus, Search, Trash, User, Volume2, VolumeOff, X } from "lucide-react"
+import { Bell, ChevronDown, ChevronRight, ChevronUp, Eye, Home, LoaderCircle, Plus, Search, Trash, User, Volume2, VolumeOff, X } from "lucide-react"
 import { useDataContext } from "@/contexts/Data"
 import Header from "../header"
 import { AddPropertyScreen } from "./add-property-screen"
@@ -19,6 +19,7 @@ import { toast } from "../ui/use-toast"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion"
 import { Badge } from "../ui/badge"
 import { capitalizeFirstLetter, formatNumberWithCommas } from "../lib/utils"
+import { HomeScreen } from "./home-screen"
 
 export function ProfileScreen() {
   const { setDisplay } = useDisplayContext();
@@ -254,6 +255,9 @@ export function ProfileScreen() {
                               <h3 className="font-medium">{search.name}</h3>
                             </div>
                             <div className="flex">
+                              <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
+                                  <Eye className="h-5 w-5 text-gray-400" onClick={() => setDisplay(<HomeScreen initialFilters={search.filters} />)} />
+                              </div>
                               <div className="p-3 rounded-full hover:bg-gray/30 cursor-pointer rounded-full hover:bg-gray/30">
                                 {search.active ? <VolumeOff className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, false)} /> :
                                   <Volume2 className="h-5 w-5 text-gray-400" onClick={() => toggleAlert(search.id, true)} />}

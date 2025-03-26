@@ -73,6 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     viewingData.sourceUser = Number(userData.user!.id);
     viewingData.id = uuidv4();
+    viewingData.sentResponse = false;
+    viewingData.sentInvitation = false;
 
     // Validate Viewing data
     const result = ViewingSchema.safeParse(viewingData);

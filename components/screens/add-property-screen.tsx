@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Property } from '@/types';
 import { set } from 'mongoose';
+import { parseQueryString } from '../lib/utils';
 
 // Type for selected image files
 interface SelectedImage {
@@ -232,6 +233,20 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
     }
   }, [propertyType]);
 
+  useEffect(()=>{
+    if(window.Telegram.WebApp.initData){
+      let data: any = parseQueryString(window.Telegram.WebApp.initData);
+      if(!data.user || !data.user.username || data.user.username.length == 0){
+        toast({
+          title: 'Telegram username required',
+          description: 'Please set a telegram username before creating a listing',
+          variant: 'destructive',
+        });
+        setDisplay(<HomeScreen />)
+      }
+    }
+  }, [window.Telegram.WebApp.initData])
+
   const handleBack = () => {
     setDisplay(<HomeScreen />);
     setShowAddPropertyButton(true);
@@ -326,14 +341,32 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    if(selectedImages.length == 3){
+      toast({
+        title: 'Error',
+        description: 'You can only add a maximum of 3 photos',
+        variant: 'destructive',
+      });
+      return
+    }
+
     // Create preview URLs for selected files
     const newImages: SelectedImage[] = Array.from(files).map((file) => ({
       file,
       previewUrl: URL.createObjectURL(file),
-    }));
+    }))
 
+    let newSelectedImages = [...selectedImages, ...newImages]
+    if(newSelectedImages.length > 3){
+      toast({
+        title: 'Error',
+        description: 'You can only add a maximum of 3 photos',
+        variant: 'destructive',
+      });
+      return
+    }
     // Add to selected images
-    setSelectedImages([...selectedImages, ...newImages]);
+    setSelectedImages(newSelectedImages);
 
     // Reset the file input
     if (fileInputRef.current) {
@@ -1155,25 +1188,30 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                 </button>
               </div>
             ))}
-            <div className="relative">
+            
+            {
+              selectedImages.length < 3 &&
+              <div className="relative">
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept="image/*"
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                disabled={isLoading || isSubmitting}
+                disabled={isLoading || isSubmitting || selectedImages.length >= 3}
                 multiple
               />
               <Button
                 type="button"
                 variant="outline"
                 className="w-24 h-24 flex flex-col items-center justify-center"
-                disabled={isLoading || isSubmitting}>
+                disabled={isLoading || isSubmitting || selectedImages.length >= 3}>
                 <ImageIcon className="h-6 w-6 mb-1" />
                 <span className="text-xs">Add Photos</span>
               </Button>
             </div>
+            }
+            
           </div>
           <p className="text-xs text-gray-500 mt-2">
             Images will be uploaded when you submit the form

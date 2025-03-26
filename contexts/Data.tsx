@@ -63,11 +63,31 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     return res.data.invoiceLink;
   }
 
-  const getProperties = async (token: string, filters: Filters) => {
+  // const getProperties = async (token: string, filters: Filters) => {
+  //   try {
+  //     let res = await axios.post(`/api/property/list`, { token, filters });
+  //     if (res.status === 200 && res.data.properties) {
+  //       setProperties(res.data.properties);
+  //     } else {
+  //       console.error('Error fetching properties:', res.data);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  const getProperties = async (token: string, filters: Filters, page: number = 1, limit: number = 100) => {
     try {
-      let res = await axios.post(`/api/property/list`, { token, filters });
+      const res = await axios.post(`/api/property/list`, { token, filters, page, limit });
+  
       if (res.status === 200 && res.data.properties) {
         setProperties(res.data.properties);
+        // setPaginationInfo({
+        //   total: res.data.total,
+        //   totalPages: res.data.totalPages,
+        //   currentPage: res.data.currentPage,
+        //   perPage: res.data.perPage,
+        // });
       } else {
         console.error('Error fetching properties:', res.data);
       }
