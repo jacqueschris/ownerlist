@@ -3,12 +3,14 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
-import { Calendar, Check, X } from "lucide-react"
+import { Calendar, Check, ChevronRight, X } from "lucide-react"
 import { formatViewingDate } from "@/lib/utils"
 import axios from "axios"
-import type { IncomingViewing } from "@/types/index"
+import type { IncomingViewing, Property } from "@/types/index"
 import { useDataContext } from "@/contexts/Data"
 import { ViewingStatusBadge } from "./viewing-status-badge"
+import { AddPropertyScreen } from "../screens/add-property-screen"
+import { useDisplayContext } from "@/contexts/Display"
 
 interface IncomingViewingsListProps {
   requests: IncomingViewing[]
@@ -16,6 +18,11 @@ interface IncomingViewingsListProps {
 
 export function IncomingViewingsList({ requests }: IncomingViewingsListProps) {
   const { setIncomingViewingRequests } = useDataContext()
+  const { setDisplay } = useDisplayContext();
+
+  const goToProperty = (property: Property) => {
+    setDisplay(<AddPropertyScreen propertyData={property} />)
+  }
 
   const handleClick = async (id: string, newStatus: string) => {
     try {
@@ -30,12 +37,12 @@ export function IncomingViewingsList({ requests }: IncomingViewingsListProps) {
           requests.map((request) =>
             request.viewing.id === id
               ? {
-                  ...request,
-                  viewing: {
-                    ...request.viewing,
-                    status: newStatus as "pending" | "approved" | "rejected",
-                  },
-                }
+                ...request,
+                viewing: {
+                  ...request.viewing,
+                  status: newStatus as "pending" | "approved" | "rejected",
+                },
+              }
               : request,
           ),
         )
@@ -96,6 +103,9 @@ export function IncomingViewingsList({ requests }: IncomingViewingsListProps) {
                     </Button>
                   </div>
                 )}
+              </div>
+              <div>
+                <ChevronRight className="h-5 w-5 text-gray-400 cursor-pointer" onClick={() => goToProperty(request.viewing.property)} />
               </div>
             </div>
           </CardContent>

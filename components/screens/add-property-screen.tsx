@@ -220,6 +220,15 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
   useEffect(() => {
     if (propertyType === 'garage') {
       setNewCarSpaceType('garage');
+      setBedrooms('0');
+      setBathrooms('0');
+    }
+    if (propertyType === 'shop') {
+      setBedrooms('0');
+      setBathrooms('0');
+    }
+    if (propertyType === 'office') {
+      setBedrooms('0');
     }
   }, [propertyType]);
 
@@ -582,6 +591,11 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
     // Start submission process
     setIsSubmitting(true);
 
+    let garage = [{
+      type: "garage",
+      capacity: newCarSpaceCapacity
+    }]
+
     try {
       // Build the complete property object
       const propertyDataToSend = {
@@ -599,9 +613,10 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
         description,
         amenities,
         availabilitySchedule,
-        carSpaces,
+        carSpaces: propertyType == "garage" ? garage : carSpaces,
         retainedImageIds: images,
       };
+
 
       const formData = new FormData();
       selectedImages.forEach((file) => {
@@ -685,11 +700,12 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="townhouse">Townhouse</SelectItem>
                   <SelectItem value="house">House</SelectItem>
                   <SelectItem value="villa">Villa</SelectItem>
                   <SelectItem value="office">Office</SelectItem>
-                  <SelectItem value="studio">Studio</SelectItem>
                   <SelectItem value="garage">Garage</SelectItem>
+                  <SelectItem value="shop">Shop</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -742,8 +758,9 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
             </div>
           )}
 
-          {propertyType != 'garage' && (
-            <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
+
+            {propertyType != 'garage' && propertyType != 'office' && propertyType != 'shop' && (
               <div>
                 <Label htmlFor="bedrooms">Bedrooms</Label>
                 <Select value={bedrooms} onValueChange={setBedrooms}>
@@ -760,6 +777,9 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                 </Select>
               </div>
 
+            )}
+
+            {propertyType != 'garage' && propertyType != 'shop' && (
               <div>
                 <Label htmlFor="bathrooms">Bathrooms</Label>
                 <Select value={bathrooms} onValueChange={setBathrooms}>
@@ -775,8 +795,10 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          )}
+            )}
+
+          </div>
+
 
           <div className="mt-4">
             <Label htmlFor="size">Size (m²)</Label>
@@ -1029,14 +1051,55 @@ export function AddPropertyScreen({ propertyData }: AddPropertyScreenProps) {
               <h2 className="text-lg font-semibold mb-4">Amenities</h2>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  'Balcony',
-                  'Pool',
-                  'Parking',
-                  'Garden',
-                  'Elevator',
-                  'Air Conditioning',
-                  'Furnished',
-                  'Pet Friendly',
+                  "Balcony",
+                  "Terrace",
+                  "Garden",
+                  "Private Yard",
+                  "Rooftop Access",
+                  "Patio",
+                  "Gated Community",
+                  "Security System",
+                  "Doorman/Concierge",
+                  "Smart Home Features",
+                  "Reserved Parking",
+                  "EV Charging Station",
+                  "Bicycle Storage",
+                  "Swimming Pool",
+                  "Jacuzzi/Hot Tub",
+                  "Sauna",
+                  "Tennis Court",
+                  "Basketball Court",
+                  "Playground",
+                  "BBQ Area",
+                  "Clubhouse",
+                  "Elevator",
+                  "Fire Alarm System",
+                  "Smoke Detectors",
+                  "Wheelchair Accessible",
+                  "Solar Panels",
+                  "Air Conditioning",
+                  "Central Heating",
+                  "Underfloor Heating",
+                  "Ceiling Fans",
+                  "Soundproofing",
+                  "Walk-in Closet",
+                  "Fully Equipped Kitchen",
+                  "Dishwasher",
+                  "Breakfast Bar",
+                  "Kitchen Island",
+                  "Wine Cellar",
+                  "High-Speed Internet",
+                  "Cable TV",
+                  "Home Automation System",
+                  "Generator Backup",
+                  "Solar Water Heater",
+                  "Pet Friendly",
+                  "Kids Play Area",
+                  "Nearby Schools",
+                  "Nearby Parks",
+                  "Co-Working Space",
+                  "Conference Room",
+                  "Home Office"
                 ].map((amenity) => (
                   <div key={amenity} className="flex items-center space-x-2">
                     <Checkbox

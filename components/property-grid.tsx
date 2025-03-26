@@ -2,7 +2,7 @@
 
 import type React from 'react';
 import { Card, CardContent } from './ui/card';
-import { Bath, Bed, Building, Heart } from 'lucide-react';
+import { Bath, Bed, Building, Car, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { Property } from '@/types';
 import { useDisplayContext } from '@/contexts/Display';
@@ -20,6 +20,19 @@ interface PropertyGridProps {
 export function PropertyGrid({ properties }: PropertyGridProps) {
   const { setDisplay } = useDisplayContext();
   const { data, setProperties, favouritesIds, removeFavourite, addFavourite } = useDataContext();
+  
+  let carSpaces: number[] = []
+  if(properties){
+    for(let i =0; i < properties.length; i++){
+      carSpaces[i] = 0
+      let property = properties[i]
+      if (property.carSpaces) {
+        for (let carSpace of property.carSpaces) {
+          carSpaces[i] = carSpaces[i] + carSpace.capacity
+        }
+      }
+    }
+  }
 
   const toggleFavorite = async (property: Property, e: React.MouseEvent) => {
     e.preventDefault();
@@ -65,7 +78,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
   }
 
   const handlePropertyClick = (property: Property) => {
-    if(property.owner.id == data.id) {
+    if (property.owner.id == data.id) {
       setDisplay(<AddPropertyScreen propertyData={property} />)
     } else {
       setDisplay(<PropertyDetail property={property} />)
@@ -75,7 +88,7 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {properties && properties.map((property) => (
+      {properties && properties.map((property, index) => (
         <div
           className=" cursor-pointer"
           key={property.id}
@@ -95,9 +108,8 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
                 className="absolute top-2 right-2 p-1 bg-white rounded-full"
                 onClick={(e) => toggleFavorite(property, e)}>
                 <Heart
-                  className={`h-5 w-5 ${
-                    favouritesIds?.includes(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'
-                  }`}
+                  className={`h-5 w-5 ${favouritesIds?.includes(property.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'
+                    }`}
                 />
               </button>
             </div>
@@ -110,14 +122,27 @@ export function PropertyGrid({ properties }: PropertyGridProps) {
               <h3 className="text-sm font-medium line-clamp-1">{property.title}</h3>
               <p className="text-xs text-gray-500 mt-1">{property.location}</p>
               <div className="flex text-xs text-gray-500 mt-2 space-x-2">
-                <span className="flex">
-                  {property.bedrooms} <Bed className="h-4 w-4 ml-2 m-auto" />
-                </span>
-                <span>•</span>
-                <span className="flex">
-                  {property.bathrooms} <Bath className="h-4 w-4 ml-2 m-auto" />
-                </span>
-                <span>•</span>
+                {property.propertyType != "garage" && property.propertyType != "shop" &&
+                  <div className='flex'>
+                    <span className="flex mr-2">
+                      {property.bedrooms} <Bed className="h-4 w-4 ml-1 m-auto" />
+                    </span>
+                    <span>•</span>
+                  </div>
+                }
+                {property.propertyType != "garage" &&
+                  <div className='flex'>
+                    <span className="flex  mr-2">
+                      {property.bathrooms} <Bath className="h-4 w-4 ml-1 m-auto" />
+                    </span>
+                    <span>•</span>
+                  </div>
+                }
+                  <span className="flex  mr-2">
+                    {carSpaces[index]} <Car className="h-4 w-4 ml-1 m-auto" />
+                  </span>
+                  <span>•</span>
+
                 <span>{property.size} m²</span>
               </div>
             </CardContent>

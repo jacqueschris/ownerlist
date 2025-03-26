@@ -21,9 +21,11 @@ export function PropertyTabs({ property }: PropertyTabsProps) {
 
   return (
     <Tabs defaultValue="details" className="mt-6">
-      <TabsList className="grid grid-cols-3 mb-4">
+      <TabsList className={`grid grid-cols-${property.amenities.length > 0 ? 3 : 2} mb-4`}>
         <TabsTrigger value="details">Details</TabsTrigger>
-        <TabsTrigger value="amenities">Amenities</TabsTrigger>
+        {property.amenities.length > 0 && (
+          <TabsTrigger value="amenities">Amenities</TabsTrigger>
+        )}
         <TabsTrigger value="contact">Contact</TabsTrigger>
       </TabsList>
 
@@ -31,9 +33,12 @@ export function PropertyTabs({ property }: PropertyTabsProps) {
         <PropertyDetails property={property} openGoogleMaps={openGoogleMaps} />
       </TabsContent>
 
-      <TabsContent value="amenities">
-        <PropertyAmenities amenities={property.amenities} />
-      </TabsContent>
+      {property.amenities.length > 0 && (
+        <TabsContent value="amenities">
+          <PropertyAmenities amenities={property.amenities} />
+        </TabsContent>
+      )
+      }
 
       <TabsContent value="contact">
         <Card>

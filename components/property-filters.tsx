@@ -88,7 +88,7 @@ export function PropertyFilters({
 
   const submitSearchAlert = async () => {
 
-    if(title.length == 0) {
+    if (title.length == 0) {
       setCreateAlertError("Missing name for search alert")
       return
     }
@@ -169,10 +169,12 @@ export function PropertyFilters({
             multiple={true}
             options={[
               { value: "apartment", label: "Apartment" },
+              { value: "townhouse", label: "Townhouse" },
               { value: "house", label: "House" },
               { value: "villa", label: "Villa" },
               { value: "office", label: "Office" },
-              { value: "studio", label: "Studio" },
+              { value: "garage", label: "Garage" },
+              { value: "shop", label: "Shop" },
             ]}
           />
         </div>
@@ -257,7 +259,57 @@ export function PropertyFilters({
         <div>
           <h4 className="font-medium mb-2">Amenities</h4>
           <div className="grid grid-cols-2 gap-2">
-            {["Balcony", "Pool", "Parking", "Garden", "Elevator", "Air Conditioning", "Furnished", "Pet Friendly"].map(
+            {[
+              "Balcony",
+              "Terrace",
+              "Garden",
+              "Private Yard",
+              "Rooftop Access",
+              "Patio",
+              "Gated Community",
+              "Security System",
+              "Doorman/Concierge",
+              "Smart Home Features",
+              "Reserved Parking",
+              "EV Charging Station",
+              "Bicycle Storage",
+              "Swimming Pool",
+              "Jacuzzi/Hot Tub",
+              "Sauna",
+              "Tennis Court",
+              "Basketball Court",
+              "Playground",
+              "BBQ Area",
+              "Clubhouse",
+              "Elevator",
+              "Fire Alarm System",
+              "Smoke Detectors",
+              "Wheelchair Accessible",
+              "Solar Panels",
+              "Air Conditioning",
+              "Central Heating",
+              "Underfloor Heating",
+              "Ceiling Fans",
+              "Soundproofing",
+              "Walk-in Closet",
+              "Fully Equipped Kitchen",
+              "Dishwasher",
+              "Breakfast Bar",
+              "Kitchen Island",
+              "Wine Cellar",
+              "High-Speed Internet",
+              "Cable TV",
+              "Home Automation System",
+              "Generator Backup",
+              "Solar Water Heater",
+              "Pet Friendly",
+              "Kids Play Area",
+              "Nearby Schools",
+              "Nearby Parks",
+              "Co-Working Space",
+              "Conference Room",
+              "Home Office"
+            ].map(
               (amenity) => (
                 <div key={amenity} className="flex items-center space-x-2">
                   <Checkbox

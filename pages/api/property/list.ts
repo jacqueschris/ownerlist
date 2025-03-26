@@ -26,92 +26,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       });
     }
 
-    // Get filter parameters from request body
-    const { listingType, priceRange, propertyType, bedrooms, bathrooms, size, amenities, locality, garageSpaces } =
-      req.body.filters;
+    // Extract filters and pagination params
+    const { listingType, priceRange, propertyType, bedrooms, bathrooms, size, amenities, locality, garageSpaces } = req.body.filters;
+    let { page = 1, limit = 100 } = req.body; // Default page = 1, limit = 20
+
+    // Ensure valid pagination values
+    page = Math.max(1, parseInt(page)); // Page should be at least 1
+    limit = Math.min(100, Math.max(1, parseInt(limit))); // Limit should be between 1 and 100
+    const skip = (page - 1) * limit;
 
     // Build query filters
     const filters: Record<string, any> = {};
 
-    // Add listingType filter (if not 'all')
-    if (listingType && listingType !== 'all') {
-      filters.listingType = listingType;
-    }
-
-    // Add price range filter
+    if (listingType && listingType !== 'all') filters.listingType = listingType;
     if (priceRange && Array.isArray(priceRange) && priceRange.length === 2) {
-      filters.price = {
-        $gte: priceRange[0],
-        $lte: priceRange[1],
-      };
+      filters.price = { $gte: priceRange[0], $lte: priceRange[1] };
     }
-
-    // Add propertyType filter
-    if (propertyType && propertyType.length > 0) {
-      filters.propertyType = { $in: propertyType };
-    }
-
-    // Add locality filter
-    if (locality && locality.length > 0) {
-      filters.locality = { $in: locality };
-    }
-
-    // Add bedrooms filter (exact match or minimum)
-    if (bedrooms) {
-      if (bedrooms === '4+') {
-        filters.bedrooms = { $gte: 4 };
-      } else {
-        filters.bedrooms = parseInt(bedrooms);
-      }
-    }
-
-    // Add bathrooms filter (exact match or minimum)
-    if (bathrooms) {
-      if (bathrooms === '3+') {
-        filters.bathrooms = { $gte: 3 };
-      } else {
-        filters.bathrooms = parseInt(bathrooms);
-      }
-    }
-
-    if (garageSpaces) {
-      if (garageSpaces === '10+') {
-        filters.totalCarSpaces = { $gte: 10 };
-      } else {
-        filters.totalCarSpaces = parseInt(garageSpaces);
-      }
-    }
-
-    // Add size range filter
+    if (propertyType && propertyType.length > 0) filters.propertyType = { $in: propertyType };
+    if (locality && locality.length > 0) filters.locality = { $in: locality };
+    if (bedrooms) filters.bedrooms = bedrooms === '4+' ? { $gte: 4 } : parseInt(bedrooms);
+    if (bathrooms) filters.bathrooms = bathrooms === '3+' ? { $gte: 3 } : parseInt(bathrooms);
+    if (garageSpaces) filters.totalCarSpaces = garageSpaces === '10+' ? { $gte: 10 } : parseInt(garageSpaces);
     if (size && Array.isArray(size) && size.length === 2) {
-      filters.size = {
-        $gte: size[0],
-        $lte: size[1],
-      };
+      filters.size = { $gte: size[0], $lte: size[1] };
     }
-
-    // Add amenities filter (must have all specified amenities)
     if (amenities && Array.isArray(amenities) && amenities.length > 0) {
       filters.amenities = { $all: amenities };
     }
+    
+    filters.active = true;
 
-    filters.active = true
-
-    console.log('Applied filters:', filters);
+    console.log('Applied filters:', filters, { page, limit, skip });
 
     // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME);
     const propertiesCollection = db.collection('properties');
 
-    // Fetch properties with owner details
+    // Fetch properties with pagination
     const properties = await propertiesCollection
       .aggregate([
-        {
-          $addFields: {
-            totalCarSpaces: { $sum: "$carSpaces.capacity" }
-          }
-        },
+        { $addFields: { totalCarSpaces: { $sum: "$carSpaces.capacity" } } },
         { $match: filters },
         {
           $lookup: {
@@ -147,13 +102,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             'owner.username': '$ownerDetails.username',
           },
         },
+        { $skip: skip }, // Skip items based on page number
+        { $limit: limit }, // Limit items per query
       ])
       .toArray();
+
+    // Count total properties for pagination info
+    const totalCount = await propertiesCollection.countDocuments(filters);
 
     return res.status(200).json({
       success: true,
       properties,
       count: properties.length,
+      total: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      perPage: limit,
       filters: filters,
     });
   } catch (err: any) {

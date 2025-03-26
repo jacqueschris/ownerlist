@@ -3,7 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@radix-ui/react-avatar';
-import { Calendar, Trash2 } from 'lucide-react';
+import { Calendar, ChevronRight, Trash2 } from 'lucide-react';
 import { formatViewingDate } from '@/lib/utils';
 import { useDisplayContext } from '@/contexts/Display';
 import { PropertyDetail } from '../property/property-detail';
@@ -11,10 +11,16 @@ import { ViewingStatusBadge } from './viewing-status-badge';
 import axios from 'axios';
 import { useDataContext } from '@/contexts/Data';
 import { toast } from '@/components/ui/use-toast';
+import { Property } from '@/types';
+import { AddPropertyScreen } from '../screens/add-property-screen';
 
 export function OutgoingViewingsList() {
   const { setDisplay } = useDisplayContext();
   const { outgoingViewingRequests, setOutgoingViewingRequests } = useDataContext();
+
+  const goToProperty = (property: Property) => {
+    setDisplay(<AddPropertyScreen propertyData={property} />)
+  }
 
   const onDelete = async (id: string) => {
     try {
@@ -89,6 +95,10 @@ export function OutgoingViewingsList() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
+                </div>
+
+                <div>
+                  <ChevronRight className="h-5 w-5 text-gray-400 cursor-pointer" onClick={() => goToProperty(request.viewing.property)} />
                 </div>
               </div>
             </CardContent>

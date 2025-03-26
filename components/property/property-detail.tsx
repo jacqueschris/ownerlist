@@ -31,6 +31,8 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
     null
   );
 
+  let hasOptions = property.availabilitySchedule && property.availabilitySchedule.length > 0
+
   useEffect(() => {
     if (webApp) {
       webApp.BackButton.show();
@@ -138,6 +140,8 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
         <PropertyInfo property={property} />
         <PropertyTabs property={property} />
 
+        {hasOptions && 
+        <div>
         {!outgoingViewingRequests ? null : outgoingViewingRequests.find(
             (request) => request.viewing.property.id === property.id
           ) ? (
@@ -159,6 +163,8 @@ export function PropertyDetail({ property }: PropertyDetailProps) {
             handleBookViewing={handleBookViewing}
           />
         )}
+        </div>
+      }
       </div>
     </div>
   );
